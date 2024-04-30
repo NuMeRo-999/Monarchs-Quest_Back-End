@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ItemRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ItemRepository::class)]
@@ -36,6 +38,24 @@ class Item
 
     #[ORM\Column(length: 255)]
     private ?string $type = null;
+
+    /**
+     * @var Collection<int, SaveSlot>
+     */
+    #[ORM\ManyToMany(targetEntity: SaveSlot::class, mappedBy: 'Inventario')]
+    private Collection $saveSlots;
+
+    /**
+     * @var Collection<int, Heroe>
+     */
+    #[ORM\ManyToMany(targetEntity: Heroe::class, mappedBy: 'weapon_1')]
+    private Collection $heroes;
+
+    public function __construct()
+    {
+        $this->saveSlots = new ArrayCollection();
+        $this->heroes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -134,6 +154,60 @@ class Item
     public function setType(string $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SaveSlot>
+     */
+    public function getSaveSlots(): Collection
+    {
+        return $this->saveSlots;
+    }
+
+    public function addSaveSlot(SaveSlot $saveSlot): static
+    {
+        if (!$this->saveSlots->contains($saveSlot)) {
+            $this->saveSlots->add($saveSlot);
+            $saveSlot->addInventario($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSaveSlot(SaveSlot $saveSlot): static
+    {
+        if ($this->saveSlots->removeElement($saveSlot)) {
+            $saveSlot->removeInventario($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Heroe>
+     */
+    public function getHeroes(): Collection
+    {
+        return $this->heroes;
+    }
+
+    public function addHero(Heroe $hero): static
+    {
+        if (!$this->heroes->contains($hero)) {
+            $this->heroes->add($hero);
+            $hero->addWeapon1($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHero(Heroe $hero): static
+    {
+        if ($this->heroes->removeElement($hero)) {
+            $hero->removeWeapon1($this);
+        }
 
         return $this;
     }

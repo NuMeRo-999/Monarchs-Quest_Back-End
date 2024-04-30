@@ -32,6 +32,9 @@ class Enemy
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $state = null;
 
+    #[ORM\ManyToOne(inversedBy: 'enemies')]
+    private ?Stage $stage = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +108,18 @@ class Enemy
     public function setState(int $state): static
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    public function getStage(): ?Stage
+    {
+        return $this->stage;
+    }
+
+    public function setStage(?Stage $stage): static
+    {
+        $this->stage = $stage;
 
         return $this;
     }

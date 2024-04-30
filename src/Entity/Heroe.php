@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\HeroeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -34,6 +36,38 @@ class Heroe
 
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $state = null;
+
+    /**
+     * @var Collection<int, Stage>
+     */
+    #[ORM\ManyToMany(targetEntity: Stage::class, mappedBy: 'heroes')]
+    private Collection $stages;
+
+    /**
+     * @var Collection<int, Item>
+     */
+    #[ORM\ManyToMany(targetEntity: Item::class, inversedBy: 'heroes')]
+    private Collection $weapon_1;
+
+    /**
+     * @var Collection<int, Item>
+     */
+    #[ORM\ManyToMany(targetEntity: Item::class)]
+    private Collection $weapon_2;
+
+    /**
+     * @var Collection<int, Item>
+     */
+    #[ORM\ManyToMany(targetEntity: Item::class)]
+    private Collection $trinket;
+
+    public function __construct()
+    {
+        $this->stages = new ArrayCollection();
+        $this->weapon_1 = new ArrayCollection();
+        $this->weapon_2 = new ArrayCollection();
+        $this->trinket = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -120,6 +154,105 @@ class Heroe
     public function setState(int $state): static
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Stage>
+     */
+    public function getStages(): Collection
+    {
+        return $this->stages;
+    }
+
+    public function addStage(Stage $stage): static
+    {
+        if (!$this->stages->contains($stage)) {
+            $this->stages->add($stage);
+            $stage->addHero($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStage(Stage $stage): static
+    {
+        if ($this->stages->removeElement($stage)) {
+            $stage->removeHero($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Item>
+     */
+    public function getWeapon1(): Collection
+    {
+        return $this->weapon_1;
+    }
+
+    public function addWeapon1(Item $weapon1): static
+    {
+        if (!$this->weapon_1->contains($weapon1)) {
+            $this->weapon_1->add($weapon1);
+        }
+
+        return $this;
+    }
+
+    public function removeWeapon1(Item $weapon1): static
+    {
+        $this->weapon_1->removeElement($weapon1);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Item>
+     */
+    public function getWeapon2(): Collection
+    {
+        return $this->weapon_2;
+    }
+
+    public function addWeapon2(Item $weapon2): static
+    {
+        if (!$this->weapon_2->contains($weapon2)) {
+            $this->weapon_2->add($weapon2);
+        }
+
+        return $this;
+    }
+
+    public function removeWeapon2(Item $weapon2): static
+    {
+        $this->weapon_2->removeElement($weapon2);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Item>
+     */
+    public function getTrinket(): Collection
+    {
+        return $this->trinket;
+    }
+
+    public function addTrinket(Item $trinket): static
+    {
+        if (!$this->trinket->contains($trinket)) {
+            $this->trinket->add($trinket);
+        }
+
+        return $this;
+    }
+
+    public function removeTrinket(Item $trinket): static
+    {
+        $this->trinket->removeElement($trinket);
 
         return $this;
     }

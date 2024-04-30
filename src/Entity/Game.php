@@ -21,9 +21,16 @@ class Game
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'game')]
     private Collection $user;
 
+    /**
+     * @var Collection<int, SaveSlot>
+     */
+    #[ORM\OneToMany(targetEntity: SaveSlot::class, mappedBy: 'game')]
+    private Collection $saveSlot;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
+        $this->saveSlot = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -55,6 +62,36 @@ class Game
             // set the owning side to null (unless already changed)
             if ($user->getGame() === $this) {
                 $user->setGame(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SaveSlot>
+     */
+    public function getSaveSlot(): Collection
+    {
+        return $this->saveSlot;
+    }
+
+    public function addSaveSlot(SaveSlot $saveSlot): static
+    {
+        if (!$this->saveSlot->contains($saveSlot)) {
+            $this->saveSlot->add($saveSlot);
+            $saveSlot->setGame($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSaveSlot(SaveSlot $saveSlot): static
+    {
+        if ($this->saveSlot->removeElement($saveSlot)) {
+            // set the owning side to null (unless already changed)
+            if ($saveSlot->getGame() === $this) {
+                $saveSlot->setGame(null);
             }
         }
 
