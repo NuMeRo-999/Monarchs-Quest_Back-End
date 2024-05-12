@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Item;
+use App\Entity\SaveSlot;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -23,27 +24,23 @@ class ItemRepository extends ServiceEntityRepository
 
     public function createItems(): array
     {
-        $entityManager = $this->getEntityManager();
-        $queryBuilder = $entityManager->createQueryBuilder();
-        $queryBuilder
-            ->select('i')
-            ->from(Item::class, 'i')
-            ->where(
-                $queryBuilder->expr()->notIn(
-                    'i.id',
-                    $entityManager->createQueryBuilder()
-                        ->select('si.item')
-                        ->from('save_slot_item', 'si')
-                        ->getDQL()
-                )
-            );
-            
-        $query = $queryBuilder->getQuery();
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+
+        $qb->select('i')
+        ->from(Item::class, 'i')
+        ->leftJoin('i.saveSlots', 'ss')
+        ->groupBy('i.id')
+        ->having('COUNT(ss) = 0');
+
+        $query = $qb->getQuery();
 
         $items = $query->getResult();
 
         $generatedItems = [];
         foreach ($items as $itemType) {
+
+            // dd($itemType);
             $item = new Item();
             $item->setName($itemType->getName());
             $item->setDescription($itemType->getDescription());

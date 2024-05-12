@@ -42,18 +42,11 @@ class HeroeRepository extends ServiceEntityRepository
         $queryBuilder
             ->select('h')
             ->from(Heroe::class, 'h')
-            ->where(
-                $queryBuilder->expr()->notIn(
-                    'h.id',
-                    $entityManager->createQueryBuilder()
-                        ->select('IDENTITY(sh.heroe)')
-                        ->from('stage_heroe', 'sh') // Aquí usamos directamente el nombre de la tabla
-                        ->getDQL()
-                )
-            );
+            ->leftJoin('h.stages', 's') // Usamos la relación ManyToMany 'stages'
+            ->groupBy('h.id')
+            ->having('COUNT(s) = 0');
 
         $query = $queryBuilder->getQuery();
-        
         $heroes = $query->getResult();
 
         $generatedHeroes = [];
@@ -67,6 +60,14 @@ class HeroeRepository extends ServiceEntityRepository
             $hero->setLevel($heroType->getLevel());
             $hero->setExperience($heroType->getExperience());
             $hero->setState($heroType->getState()); // 1 Vivo - 0 Muerto
+            $hero->addAbility($heroType->getAbilities()->first());
+            $hero->setImageFilename($heroType->getImageFilename());
+            $hero->setName($heroType->getName());
+
+            $abilities = $heroType->getAbilities();
+            foreach ($abilities as $ability) {
+                $hero->addAbility($ability);
+            }
 
             $generatedHeroes[] = $hero;
         }

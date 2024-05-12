@@ -42,7 +42,7 @@ class Item
     /**
      * @var Collection<int, SaveSlot>
      */
-    #[ORM\ManyToMany(targetEntity: SaveSlot::class, mappedBy: 'Inventario')]
+    #[ORM\ManyToMany(targetEntity: SaveSlot::class, mappedBy: 'inventario')]
     private Collection $saveSlots;
 
     /**
@@ -230,7 +230,7 @@ class Item
         return $this;
     }
 
-    public function isState(): ?bool
+    public function getState(): ?bool
     {
         return $this->state;
     }

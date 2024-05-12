@@ -17,8 +17,42 @@ class GameController extends AbstractController
     #[Route('/', name: 'app_game_index', methods: ['GET'])]
     public function index(GameRepository $gameRepository): Response
     {
+        // Obtener todos los juegos
         $games = $gameRepository->findAll();
-        return $this->json($games, 200);
+        
+        $gamesData = [];
+
+        foreach ($games as $game) {
+            $gamesData[] = [
+                'id' => $game->getId(),
+                'user' => array_map(function ($user) {
+                    return [
+                        'id' => $user->getId(),
+                        'username' => $user->getUsername(),
+                        'roles' => $user->getRoles(),
+                    ];
+                }, $game->getUser()->toArray()),
+                'saveSlot' => array_map(function ($saveSlot) {
+                    return [
+                        'id' => $saveSlot->getId(),
+                        'creationDate' => $saveSlot->getCreationDate(),
+                        'money' => $saveSlot->getMoney(),
+                        'stage' => array_map(function ($stage) {
+                            return [
+                                'id' => $stage->getId(),
+                                'stage' => $stage->getStage(),
+                            ];
+                        }, $saveSlot->getStage()->toArray()),
+                    ];
+                }, $game->getSaveSlot()->toArray()),
+            ];
+        }
+
+        $data = json_encode($gamesData);
+
+        return new Response($data, Response::HTTP_OK, [
+            'Content-Type' => 'application/json'
+        ]);
     }
 
     #[Route('/new', name: 'app_game_new', methods: ['POST'])]

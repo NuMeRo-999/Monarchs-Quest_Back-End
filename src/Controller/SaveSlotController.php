@@ -13,6 +13,7 @@ use App\Repository\SaveSlotRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security as SecurityBundleSecurity;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -41,8 +42,41 @@ class SaveSlotController extends AbstractController
                 'id' => $saveSlot->getId(),
                 'creationDate' => $saveSlot->getCreationDate(),
                 'money' => $saveSlot->getMoney(),
-                'game' => $saveSlot->getGame(),
-                'stage' => $saveSlot->getStage(),
+                'game' => $saveSlot->getGame()->getId(),  
+                'stage' => array_map(function ($stage){
+                    return [
+                        'id' => $stage->getId(),
+                        'stage' => $stage->getStage(),
+                        'heroes' => array_map(function ($hero) {
+                            return [
+                                'id' => $hero->getId(),
+                                'healthPoints' => $hero->getHealthPoints(),
+                                'attackPower' => $hero->getAttackPower(),
+                                'criticalStrikeChance' => $hero->getCriticalStrikeChance(),
+                                'defense' => $hero->getDefense(),
+                                'experience' => $hero->getExperience(),
+                                'level' => $hero->getLevel(),
+                                'state' => $hero->getState(),
+                                'maxHealthPoints' => $hero->getMaxHealthPoints(),
+                                'imageFilename' => $hero->getImageFilename(),
+                                'name' => $hero->getName(),
+                            ];
+                        }, $stage->getHeroes()->toArray()),
+                        'enemies' => array_map(function ($enemy) {
+                            return [
+                                'id' => $enemy->getId(),
+                                'healthPoints' => $enemy->getHealthPoints(),
+                                'attackPower' => $enemy->getAttackPower(),
+                                'defense' => $enemy->getDefense(),
+                                'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+                                'level' => $enemy->getLevel(),
+                                'state' => $enemy->getState(),
+                                'name' => $enemy->getName(),
+                                'imageFilename' => $enemy->getImageFilename(),
+                            ];
+                        }, $stage->getEnemies()->toArray())
+                    ];
+                }, $saveSlot->getStage()->toArray()),
             ];
             $serializedSaveSlots[] = $serializedSaveSlot;
         }
@@ -91,7 +125,6 @@ class SaveSlotController extends AbstractController
 
         $saveSlot->setGame($game);
 
-        dd($saveSlot);
 
         // Stage
         $stage = new Stage();
@@ -110,18 +143,18 @@ class SaveSlotController extends AbstractController
         
         $saveSlot->addStage($stage);
 
-        $form = $this->createForm(SaveSlotType::class, $saveSlot);
-        $form->submit($data);
+        // Persistir los objetos y guardar en la base de datos
+        $entityManager->persist($saveSlot);
+        $entityManager->persist($stage);
+        $entityManager->flush();
 
-        if ($form->isValid()) {
-            $entityManager->persist($saveSlot);
-            $entityManager->persist($stage);
-            $entityManager->flush();
+        // Serializar el objeto SaveSlot con el grupo de serialización adecuado
+        $json = $this->serializer->serialize($saveSlot, 'json', [
+            'groups' => 'saveSlot_serialization',
+        ]);
 
-            return $this->json($saveSlot, 201);
-        }
-
-        return $this->json(['error' => 'Invalid data'], 400);
+        // Devolver una respuesta JSON con el objeto serializado y el código de estado 201
+        return new JsonResponse($json, 201, [], true);
     }
 
     #[Route('/{id}', name: 'app_save_slot_show', methods: ['GET'])]

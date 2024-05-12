@@ -31,7 +31,7 @@ class EnemyRepository extends ServiceEntityRepository
     {
         // Buscar enemigos que no tengan un ID de etapa asignado
         $queryBuilder = $this->createQueryBuilder('e')
-            ->where('e.stage_id IS NULL');
+            ->where('e.stage IS NULL');
 
         $enemies = $queryBuilder->getQuery()->getResult();
 
@@ -55,6 +55,7 @@ class EnemyRepository extends ServiceEntityRepository
             $enemy->setCriticalStrikeChance(random_int(5 * $level, 15 * $level));
             $enemy->setLevel($level);
             $enemy->setState(1); // Vivo
+            $enemy->setImageFilename($enemyType->getImageFilename());
 
             $generatedEnemies[] = $enemy;
         }

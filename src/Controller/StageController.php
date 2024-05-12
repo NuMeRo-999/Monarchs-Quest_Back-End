@@ -10,15 +10,65 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/stage')]
 class StageController extends AbstractController
 {
-    #[Route('/', name: 'app_stage_index', methods: ['GET'])]
-    public function index(StageRepository $stageRepository): Response
+
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
     {
-        return $this->render('stage/index.html.twig', [
-            'stages' => $stageRepository->findAll(),
+        $this->serializer = $serializer;
+    }
+
+    #[Route('/', name: 'app_stage_index', methods: ['GET'])]
+    public function index(StageRepository $stageRepository, SerializerInterface $serializer): Response
+    {
+        $stages = $stageRepository->findAll();
+
+        $serializedStages = [];
+        foreach ($stages as $stage) {
+            $serializedStage = [
+                'id' => $stage->getId(),
+                'stage' => $stage->getStage(),
+                'heroes' => array_map(function ($hero) {
+                    return [
+                        'id' => $hero->getId(),
+                        'healthPoints' => $hero->getHealthPoints(),
+                        'attackPower' => $hero->getAttackPower(),
+                        'criticalStrikeChance' => $hero->getCriticalStrikeChance(),
+                        'defense' => $hero->getDefense(),
+                        'experience' => $hero->getExperience(),
+                        'level' => $hero->getLevel(),
+                        'state' => $hero->getState(),
+                        'maxHealthPoints' => $hero->getMaxHealthPoints(),
+                        'imageFilename' => $hero->getImageFilename(),
+                        'name' => $hero->getName(),
+                    ];
+                }, $stage->getHeroes()->toArray()),
+                'enemies' => array_map(function ($enemy) {
+                    return [
+                        'id' => $enemy->getId(),
+                        'healthPoints' => $enemy->getHealthPoints(),
+                        'attackPower' => $enemy->getAttackPower(),
+                        'defense' => $enemy->getDefense(),
+                        'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+                        'level' => $enemy->getLevel(),
+                        'state' => $enemy->getState(),
+                        'name' => $enemy->getName(),
+                        'imageFilename' => $enemy->getImageFilename(),
+                    ];
+                }, $stage->getEnemies()->toArray())
+            ];
+            $serializedStages[] = $serializedStage;
+        }
+
+        $data = $serializer->serialize($serializedStages, 'json');
+
+        return new Response($data, Response::HTTP_OK, [
+            'Content-Type' => 'application/json'
         ]);
     }
 
@@ -71,7 +121,7 @@ class StageController extends AbstractController
     #[Route('/{id}', name: 'app_stage_delete', methods: ['POST'])]
     public function delete(Request $request, Stage $stage, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$stage->getId(), $request->getPayload()->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $stage->getId(), $request->getPayload()->get('_token'))) {
             $entityManager->remove($stage);
             $entityManager->flush();
         }
