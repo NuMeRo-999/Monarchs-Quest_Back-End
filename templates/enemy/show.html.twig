@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Enemy{% endblock %}
+
+{% block body %}
+    <h1>Enemy</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ enemy.id }}</td>
+            </tr>
+            <tr>
+                <th>HealthPoints</th>
+                <td>{{ enemy.healthPoints }}</td>
+            </tr>
+            <tr>
+                <th>AttackPower</th>
+                <td>{{ enemy.attackPower }}</td>
+            </tr>
+            <tr>
+                <th>Defense</th>
+                <td>{{ enemy.defense }}</td>
+            </tr>
+            <tr>
+                <th>CriticalStrikeChance</th>
+                <td>{{ enemy.criticalStrikeChance }}</td>
+            </tr>
+            <tr>
+                <th>Level</th>
+                <td>{{ enemy.level }}</td>
+            </tr>
+            <tr>
+                <th>State</th>
+                <td>{{ enemy.state }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_enemy_index') }}">back to list</a>
+
+    <a href="{{ path('app_enemy_edit', {'id': enemy.id}) }}">edit</a>
+
+    {{ include('enemy/_delete_form.html.twig') }}
+{% endblock %}

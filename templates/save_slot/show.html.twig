@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SaveSlot{% endblock %}
+
+{% block body %}
+    <h1>SaveSlot</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ save_slot.id }}</td>
+            </tr>
+            <tr>
+                <th>CreationDate</th>
+                <td>{{ save_slot.creationDate ? save_slot.creationDate|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Money</th>
+                <td>{{ save_slot.money }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_save_slot_index') }}">back to list</a>
+
+    <a href="{{ path('app_save_slot_edit', {'id': save_slot.id}) }}">edit</a>
+
+    {{ include('save_slot/_delete_form.html.twig') }}
+{% endblock %}

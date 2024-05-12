@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: SaveSlotRepository::class)]
 class SaveSlot
@@ -36,6 +37,12 @@ class SaveSlot
      */
     #[ORM\OneToMany(targetEntity: Stage::class, mappedBy: 'saveSlot')]
     private Collection $stage;
+
+    #[ORM\Column]
+    private ?int $kills = null;
+
+    #[ORM\Column]
+    private ?int $state = null;
 
     public function __construct()
     {
@@ -134,6 +141,30 @@ class SaveSlot
                 $stage->setSaveSlot(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getKills(): ?int
+    {
+        return $this->kills;
+    }
+
+    public function setKills(int $kills): static
+    {
+        $this->kills = $kills;
+
+        return $this;
+    }
+
+    public function getState(): ?int
+    {
+        return $this->state;
+    }
+
+    public function setState(int $state): static
+    {
+        $this->state = $state;
 
         return $this;
     }

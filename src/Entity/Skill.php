@@ -19,7 +19,7 @@ class Skill
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $desccription = null;
+    private ?string $description = null;
 
     #[ORM\Column(length: 255)]
     private ?string $type = null;
@@ -33,9 +33,19 @@ class Skill
     #[ORM\ManyToMany(targetEntity: Effect::class, inversedBy: 'skills')]
     private Collection $effect;
 
+    /**
+     * @var Collection<int, Heroe>
+     */
+    #[ORM\ManyToMany(targetEntity: Heroe::class, mappedBy: 'abilities')]
+    private Collection $heroes;
+
+    #[ORM\Column(type: 'string')]
+    private string $imageFilename;
+
     public function __construct()
     {
         $this->effect = new ArrayCollection();
+        $this->heroes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -55,14 +65,14 @@ class Skill
         return $this;
     }
 
-    public function getDesccription(): ?string
+    public function getDescription(): ?string
     {
-        return $this->desccription;
+        return $this->description;
     }
 
-    public function setDesccription(string $desccription): static
+    public function setDescription(string $description): static
     {
-        $this->desccription = $desccription;
+        $this->description = $description;
 
         return $this;
     }
@@ -111,6 +121,45 @@ class Skill
     public function removeEffect(Effect $effect): static
     {
         $this->effect->removeElement($effect);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Heroe>
+     */
+    public function getHeroes(): Collection
+    {
+        return $this->heroes;
+    }
+
+    public function addHero(Heroe $hero): static
+    {
+        if (!$this->heroes->contains($hero)) {
+            $this->heroes->add($hero);
+            $hero->addAbility($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHero(Heroe $hero): static
+    {
+        if ($this->heroes->removeElement($hero)) {
+            $hero->removeAbility($this);
+        }
+
+        return $this;
+    }
+
+    public function getImageFilename(): string
+    {
+        return $this->imageFilename;
+    }
+
+    public function setImageFilename(string $ImageFilename): self
+    {
+        $this->imageFilename = $ImageFilename;
 
         return $this;
     }

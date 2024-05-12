@@ -7,8 +7,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: HeroeRepository::class)]
+#[ApiResource]
 class Heroe
 {
     #[ORM\Id]
@@ -49,24 +51,26 @@ class Heroe
     #[ORM\ManyToMany(targetEntity: Item::class, inversedBy: 'heroes')]
     private Collection $weapon_1;
 
-    /**
-     * @var Collection<int, Item>
-     */
-    #[ORM\ManyToMany(targetEntity: Item::class)]
-    private Collection $weapon_2;
+    #[ORM\Column]
+    private ?int $maxHealthPoints = null;
 
     /**
-     * @var Collection<int, Item>
+     * @var Collection<int, Skill>
      */
-    #[ORM\ManyToMany(targetEntity: Item::class)]
-    private Collection $trinket;
+    #[ORM\ManyToMany(targetEntity: Skill::class, inversedBy: 'heroes')]
+    private Collection $abilities;
+
+    #[ORM\Column(type: 'string')]
+    private string $imageFilename;
+
+    #[ORM\Column(length: 255)]
+    private ?string $name = null;
 
     public function __construct()
     {
         $this->stages = new ArrayCollection();
         $this->weapon_1 = new ArrayCollection();
-        $this->weapon_2 = new ArrayCollection();
-        $this->trinket = new ArrayCollection();
+        $this->abilities = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -209,51 +213,64 @@ class Heroe
         return $this;
     }
 
-    /**
-     * @return Collection<int, Item>
-     */
-    public function getWeapon2(): Collection
+    public function getMaxHealthPoints(): ?int
     {
-        return $this->weapon_2;
+        return $this->maxHealthPoints;
     }
 
-    public function addWeapon2(Item $weapon2): static
+    public function setMaxHealthPoints(int $maxHealthPoints): static
     {
-        if (!$this->weapon_2->contains($weapon2)) {
-            $this->weapon_2->add($weapon2);
-        }
-
-        return $this;
-    }
-
-    public function removeWeapon2(Item $weapon2): static
-    {
-        $this->weapon_2->removeElement($weapon2);
+        $this->maxHealthPoints = $maxHealthPoints;
 
         return $this;
     }
 
     /**
-     * @return Collection<int, Item>
+     * @return Collection<int, Skill>
      */
-    public function getTrinket(): Collection
+    public function getAbilities(): Collection
     {
-        return $this->trinket;
+        return $this->abilities;
     }
 
-    public function addTrinket(Item $trinket): static
+    public function addAbility(Skill $ability): static
     {
-        if (!$this->trinket->contains($trinket)) {
-            $this->trinket->add($trinket);
+        if (!$this->abilities->contains($ability)) {
+            $this->abilities->add($ability);
         }
 
         return $this;
     }
 
-    public function removeTrinket(Item $trinket): static
+    public function removeAbility(Skill $ability): static
     {
-        $this->trinket->removeElement($trinket);
+        $this->abilities->removeElement($ability);
 
         return $this;
     }
+
+    public function getImageFilename(): string
+    {
+        return $this->imageFilename;
+    }
+
+    public function setImageFilename(string $ImageFilename): self
+    {
+        $this->imageFilename = $ImageFilename;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
 }

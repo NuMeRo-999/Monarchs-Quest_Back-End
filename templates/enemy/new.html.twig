@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Enemy{% endblock %}
+
+{% block body %}
+    <h1>Create new Enemy</h1>
+
+    {{ include('enemy/_form.html.twig') }}
+
+    <a href="{{ path('app_enemy_index') }}">back to list</a>
+{% endblock %}

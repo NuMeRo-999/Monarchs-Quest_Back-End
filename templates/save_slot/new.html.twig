@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New SaveSlot{% endblock %}
+
+{% block body %}
+    <h1>Create new SaveSlot</h1>
+
+    {{ include('save_slot/_form.html.twig') }}
+
+    <a href="{{ path('app_save_slot_index') }}">back to list</a>
+{% endblock %}

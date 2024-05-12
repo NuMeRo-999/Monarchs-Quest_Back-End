@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Heroe index{% endblock %}
+
+{% block body %}
+    <h1>Heroe index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>HealthPoints</th>
+                <th>AttackPower</th>
+                <th>CriticalStrikeChance</th>
+                <th>Defense</th>
+                <th>Experience</th>
+                <th>Level</th>
+                <th>State</th>
+                <th>MaxHealthPoints</th>
+                <th>ImageFilename</th>
+                <th>Name</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for heroe in heroes %}
+            <tr>
+                <td>{{ heroe.id }}</td>
+                <td>{{ heroe.healthPoints }}</td>
+                <td>{{ heroe.attackPower }}</td>
+                <td>{{ heroe.criticalStrikeChance }}</td>
+                <td>{{ heroe.defense }}</td>
+                <td>{{ heroe.experience }}</td>
+                <td>{{ heroe.level }}</td>
+                <td>{{ heroe.state }}</td>
+                <td>{{ heroe.maxHealthPoints }}</td>
+                <td>{{ heroe.imageFilename }}</td>
+                <td>{{ heroe.name }}</td>
+                <td>
+                    <a href="{{ path('app_heroe_show', {'id': heroe.id}) }}">show</a>
+                    <a href="{{ path('app_heroe_edit', {'id': heroe.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="12">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_heroe_new') }}">Create new</a>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Heroe{% endblock %}
+
+{% block body %}
+    <h1>Create new Heroe</h1>
+
+    {{ include('heroe/_form.html.twig') }}
+
+    <a href="{{ path('app_heroe_index') }}">back to list</a>
+{% endblock %}

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Game;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -53,8 +54,17 @@ class AuthController extends AbstractController
         // Generar el token JWT
         $token = $this->jwtManager->create($user);
 
-        // Devolver el token JWT en la respuesta
-        return new JsonResponse(['token' => $token]);
+        // Obtener el id y el username del usuario
+        $userId = $user->getId();
+        $username = $user->getUsername();
+
+        // Devolver el token JWT, id y username en la respuesta
+        return new JsonResponse
+        ([
+            'id' => $userId, 
+            'username' => $username,
+            'token' => $token,
+        ]);
     }
 
     #[Route('/register', name: 'user_register', methods: ['POST'])]
@@ -78,6 +88,14 @@ class AuthController extends AbstractController
 
         // Guarda el usuario en la base de datos
         $entityManager->persist($user);
+        $entityManager->flush();
+
+        // Crea una nueva instancia de la entidad Game
+        $game = new Game();
+        $game->addUser($user);
+
+        // Guarda el juego en la base de datos
+        $entityManager->persist($game);
         $entityManager->flush();
 
         // Devuelve una respuesta de éxito

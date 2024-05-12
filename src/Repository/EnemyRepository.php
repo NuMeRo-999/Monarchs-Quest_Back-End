@@ -21,6 +21,47 @@ class EnemyRepository extends ServiceEntityRepository
         parent::__construct($registry, Enemy::class);
     }
 
+     /**
+     * Crea un número especificado de enemigos aleatorios que no tienen un ID de etapa asignado.
+     *
+     * @param int $count La cantidad de enemigos a crear.
+     * @return Enemy[] Un array de enemigos aleatorios.
+     */
+    public function createRandomEnemies(int $count): array
+    {
+        // Buscar enemigos que no tengan un ID de etapa asignado
+        $queryBuilder = $this->createQueryBuilder('e')
+            ->where('e.stage_id IS NULL');
+
+        $enemies = $queryBuilder->getQuery()->getResult();
+
+        // Barajar aleatoriamente el array de enemigos
+        shuffle($enemies);
+
+        // Seleccionar el número especificado de enemigos (si hay menos, se tomarán todos)
+        $enemies = array_slice($enemies, 0, $count);
+
+        // Generar enemigos aleatorios basados en los tipos de enemigos disponibles
+        $generatedEnemies = [];
+        foreach ($enemies as $enemyType) {
+            
+            $enemy = new Enemy();
+            $enemy->setName($enemyType->getName());
+            $level = $enemyType->getLevel();
+
+            $enemy->setHealthPoints(random_int(50 * $level, 100 * $level));
+            $enemy->setAttackPower(random_int(10 * $level, 20 * $level));
+            $enemy->setDefense(random_int(5 * $level, 15 * $level));
+            $enemy->setCriticalStrikeChance(random_int(5 * $level, 15 * $level));
+            $enemy->setLevel($level);
+            $enemy->setState(1); // Vivo
+
+            $generatedEnemies[] = $enemy;
+        }
+
+        return $generatedEnemies;
+    }
+
 //    /**
 //     * @return Enemy[] Returns an array of Enemy objects
 //     */

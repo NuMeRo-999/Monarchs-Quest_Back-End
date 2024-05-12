@@ -51,6 +51,12 @@ class Item
     #[ORM\ManyToMany(targetEntity: Heroe::class, mappedBy: 'weapon_1')]
     private Collection $heroes;
 
+    #[ORM\Column(type: 'string')]
+    private string $imageFilename;
+
+    #[ORM\Column]
+    private ?bool $state = null;
+
     public function __construct()
     {
         $this->saveSlots = new ArrayCollection();
@@ -208,6 +214,30 @@ class Item
         if ($this->heroes->removeElement($hero)) {
             $hero->removeWeapon1($this);
         }
+
+        return $this;
+    }
+
+    public function getImageFilename(): string
+    {
+        return $this->imageFilename;
+    }
+
+    public function setImageFilename(string $ImageFilename): self
+    {
+        $this->imageFilename = $ImageFilename;
+
+        return $this;
+    }
+
+    public function isState(): ?bool
+    {
+        return $this->state;
+    }
+
+    public function setState(bool $state): static
+    {
+        $this->state = $state;
 
         return $this;
     }

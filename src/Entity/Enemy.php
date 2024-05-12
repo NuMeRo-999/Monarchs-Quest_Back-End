@@ -35,6 +35,12 @@ class Enemy
     #[ORM\ManyToOne(inversedBy: 'enemies')]
     private ?Stage $stage = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $name = null;
+
+    #[ORM\Column(type: 'string')]
+    private string $imageFilename;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -120,6 +126,30 @@ class Enemy
     public function setStage(?Stage $stage): static
     {
         $this->stage = $stage;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getImageFilename(): string
+    {
+        return $this->imageFilename;
+    }
+
+    public function setImageFilename(string $ImageFilename): self
+    {
+        $this->imageFilename = $ImageFilename;
 
         return $this;
     }

@@ -21,28 +21,69 @@ class ItemRepository extends ServiceEntityRepository
         parent::__construct($registry, Item::class);
     }
 
-//    /**
-//     * @return Item[] Returns an array of Item objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('i')
-//            ->andWhere('i.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('i.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function createItems(): array
+    {
+        $entityManager = $this->getEntityManager();
+        $queryBuilder = $entityManager->createQueryBuilder();
+        $queryBuilder
+            ->select('i')
+            ->from(Item::class, 'i')
+            ->where(
+                $queryBuilder->expr()->notIn(
+                    'i.id',
+                    $entityManager->createQueryBuilder()
+                        ->select('si.item')
+                        ->from('save_slot_item', 'si')
+                        ->getDQL()
+                )
+            );
+            
+        $query = $queryBuilder->getQuery();
 
-//    public function findOneBySomeField($value): ?Item
-//    {
-//        return $this->createQueryBuilder('i')
-//            ->andWhere('i.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        $items = $query->getResult();
+
+        $generatedItems = [];
+        foreach ($items as $itemType) {
+            $item = new Item();
+            $item->setName($itemType->getName());
+            $item->setDescription($itemType->getDescription());
+            $item->setCriticalStrikeChance($itemType->getCriticalStrikeChance());
+            $item->setAttackPower($itemType->getAttackPower());
+            $item->setDefense($itemType->getDefense());
+            $item->setQuantity($itemType->getQuantity());
+            $item->setRarity($itemType->getRarity());
+            $item->setType($itemType->getType());
+            $item->setImageFilename($itemType->getImageFilename());
+            $item->setState($itemType->getState());
+
+            $generatedItems[] = $item;
+        }
+
+        return $generatedItems;
+    }
+
+    //    /**
+    //     * @return Item[] Returns an array of Item objects
+    //     */
+    //    public function findByExampleField($value): array
+    //    {
+    //        return $this->createQueryBuilder('i')
+    //            ->andWhere('i.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->orderBy('i.id', 'ASC')
+    //            ->setMaxResults(10)
+    //            ->getQuery()
+    //            ->getResult()
+    //        ;
+    //    }
+
+    //    public function findOneBySomeField($value): ?Item
+    //    {
+    //        return $this->createQueryBuilder('i')
+    //            ->andWhere('i.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->getQuery()
+    //            ->getOneOrNullResult()
+    //        ;
+    //    }
 }

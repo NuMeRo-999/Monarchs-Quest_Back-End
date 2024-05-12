@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Enemy index{% endblock %}
+
+{% block body %}
+    <h1>Enemy index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>HealthPoints</th>
+                <th>AttackPower</th>
+                <th>Defense</th>
+                <th>CriticalStrikeChance</th>
+                <th>Level</th>
+                <th>State</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for enemy in enemies %}
+            <tr>
+                <td>{{ enemy.id }}</td>
+                <td>{{ enemy.healthPoints }}</td>
+                <td>{{ enemy.attackPower }}</td>
+                <td>{{ enemy.defense }}</td>
+                <td>{{ enemy.criticalStrikeChance }}</td>
+                <td>{{ enemy.level }}</td>
+                <td>{{ enemy.state }}</td>
+                <td>
+                    <a href="{{ path('app_enemy_show', {'id': enemy.id}) }}">show</a>
+                    <a href="{{ path('app_enemy_edit', {'id': enemy.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_enemy_new') }}">Create new</a>
+{% endblock %}
