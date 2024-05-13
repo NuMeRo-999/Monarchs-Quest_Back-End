@@ -95,7 +95,7 @@ class ItemRepository extends ServiceEntityRepository
         return $items;
     }
 
-    public function getItemInInventory() {
+    public function getItemAtInventory() {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
         $qb->select('i')
