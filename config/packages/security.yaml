@@ -43,10 +43,10 @@ security:
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
-        # - { path: ^/user,       roles: IS_AUTHENTICATED_FULLY }
-        # - { path: ^/game,       roles: IS_AUTHENTICATED_FULLY }
-        # - { path: ^/save/slot,       roles: IS_AUTHENTICATED_FULLY }
-        # - { path: ^/item,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/user,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/game,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/save/slot,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/item,       roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:

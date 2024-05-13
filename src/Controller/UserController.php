@@ -103,40 +103,7 @@ class UserController extends AbstractController
                 'creationDate' => $saveSlot->getCreationDate(),
                 'money' => $saveSlot->getMoney(),
                 'kills' => $saveSlot->getKills(),
-                'stage' => array_map(function ($stage){
-                    return [
-                        'id' => $stage->getId(),
-                        'stage' => $stage->getStage(),
-                        'heroes' => array_map(function ($hero) {
-                            return [
-                                'id' => $hero->getId(),
-                                'healthPoints' => $hero->getHealthPoints(),
-                                'attackPower' => $hero->getAttackPower(),
-                                'criticalStrikeChance' => $hero->getCriticalStrikeChance(),
-                                'defense' => $hero->getDefense(),
-                                'experience' => $hero->getExperience(),
-                                'level' => $hero->getLevel(),
-                                'state' => $hero->getState(),
-                                'maxHealthPoints' => $hero->getMaxHealthPoints(),
-                                'imageFilename' => $hero->getImageFilename(),
-                                'name' => $hero->getName(),
-                            ];
-                        }, $stage->getHeroes()->toArray()),
-                        'enemies' => array_map(function ($enemy) {
-                            return [
-                                'id' => $enemy->getId(),
-                                'healthPoints' => $enemy->getHealthPoints(),
-                                'attackPower' => $enemy->getAttackPower(),
-                                'defense' => $enemy->getDefense(),
-                                'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
-                                'level' => $enemy->getLevel(),
-                                'state' => $enemy->getState(),
-                                'name' => $enemy->getName(),
-                                'imageFilename' => $enemy->getImageFilename(),
-                            ];
-                        }, $stage->getEnemies()->toArray())
-                    ];
-                }, $saveSlot->getStage()->toArray()),
+                'stage' => $saveSlot->getStage(),
             ];
             $serializedSaveSlots[] = $serializedSaveSlot;
         }
