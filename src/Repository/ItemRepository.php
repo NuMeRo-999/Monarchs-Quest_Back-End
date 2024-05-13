@@ -59,6 +59,42 @@ class ItemRepository extends ServiceEntityRepository
         return $generatedItems;
     }
 
+    public function getWeaponsEquiped() {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        $qb->select('i')
+        ->from(Item::class, 'i')
+        ->join('i.heroes', 'h')
+        ->where('i.type = :type')
+        ->setParameter('type', 'arma')
+        ->andWhere('i.state = :state')
+        ->setParameter('state', true);
+
+        $query = $qb->getQuery();
+
+        $items = $query->getResult();
+
+        return $items;
+    }
+
+    public function getAmuletEquiped() {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        $qb->select('i')
+        ->from(Item::class, 'i')
+        ->join('i.heroes', 'h')
+        ->where('i.type = :type')
+        ->setParameter('type', 'amuleto')
+        ->andWhere('i.state = :state')
+        ->setParameter('state', true);
+
+        $query = $qb->getQuery();
+
+        $items = $query->getResult();
+
+        return $items;
+    }
+
     //    /**
     //     * @return Item[] Returns an array of Item objects
     //     */

@@ -165,8 +165,52 @@ class SaveSlotController extends AbstractController
             'id' => $saveSlot->getId(),
             'creationDate' => $saveSlot->getCreationDate(),
             'money' => $saveSlot->getMoney(),
-            'game' => $saveSlot->getGame(),
-            'stage' => $saveSlot->getStage(),
+            'kills' => $saveSlot->getKills(),
+            'game' => $saveSlot->getGame()->getId(),
+            'stage' => array_map(function ($stage){
+                return [
+                    'id' => $stage->getId(),
+                    'stage' => $stage->getStage(),
+                    'heroes' => array_map(function ($hero) {
+                        return [
+                            'id' => $hero->getId(),
+                            'healthPoints' => $hero->getHealthPoints(),
+                            'attackPower' => $hero->getAttackPower(),
+                            'criticalStrikeChance' => $hero->getCriticalStrikeChance(),
+                            'defense' => $hero->getDefense(),
+                            'experience' => $hero->getExperience(),
+                            'level' => $hero->getLevel(),
+                            'state' => $hero->getState(),
+                            'maxHealthPoints' => $hero->getMaxHealthPoints(),
+                            'imageFilename' => $hero->getImageFilename(),
+                            'name' => $hero->getName(),
+                            'abilities' => array_map(function ($ability) {
+                                return [
+                                    'id' => $ability->getId(),
+                                    'name' => $ability->getName(),
+                                    'description' => $ability->getDescription(),
+                                    'attack_damage' => $ability->getAttackDamage(),
+                                    'type' => $ability->getType(),
+                                    'imageFilename' => $ability->getImageFilename(),
+                                ];
+                            }, $hero->getAbilities()->toArray()),
+                        ];
+                    }, $stage->getHeroes()->toArray()),
+                    'enemies' => array_map(function ($enemy) {
+                        return [
+                            'id' => $enemy->getId(),
+                            'healthPoints' => $enemy->getHealthPoints(),
+                            'attackPower' => $enemy->getAttackPower(),
+                            'defense' => $enemy->getDefense(),
+                            'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+                            'level' => $enemy->getLevel(),
+                            'state' => $enemy->getState(),
+                            'name' => $enemy->getName(),
+                            'imageFilename' => $enemy->getImageFilename(),
+                        ];
+                    }, $stage->getEnemies()->toArray())
+                ];
+            }, $saveSlot->getStage()->toArray()),
         ];
 
         $data = $this->serializer->serialize($serializedSaveSlot, 'json');

@@ -42,9 +42,10 @@ class HeroeRepository extends ServiceEntityRepository
         $queryBuilder
             ->select('h')
             ->from(Heroe::class, 'h')
-            ->leftJoin('h.stages', 's') // Usamos la relación ManyToMany 'stages'
+            ->leftJoin('h.stages', 's')
             ->groupBy('h.id')
             ->having('COUNT(s) = 0');
+            $queryBuilder->setMaxResults(1); // Editar si se quiere tener más heroes
 
         $query = $queryBuilder->getQuery();
         $heroes = $query->getResult();

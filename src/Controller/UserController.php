@@ -103,7 +103,12 @@ class UserController extends AbstractController
                 'creationDate' => $saveSlot->getCreationDate(),
                 'money' => $saveSlot->getMoney(),
                 'kills' => $saveSlot->getKills(),
-                'stage' => $saveSlot->getStage(),
+                'stage' => array_map(function ($stage) {
+                    return [
+                        'id' => $stage->getId(),
+                        'stage' => $stage->getStage(),
+                    ];
+                }, $saveSlot->getStage()->toArray()),
             ];
             $serializedSaveSlots[] = $serializedSaveSlot;
         }
@@ -114,5 +119,4 @@ class UserController extends AbstractController
             'Content-Type' => 'application/json'
         ]);
     }
-
 }

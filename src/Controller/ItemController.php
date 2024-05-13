@@ -11,11 +11,20 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/item')]
 class ItemController extends AbstractController
 {
+
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+    
     #[Route('/', name: 'app_item_index', methods: ['GET'])]
     public function index(ItemRepository $itemRepository): Response
     {
@@ -60,6 +69,60 @@ class ItemController extends AbstractController
         return $this->render('item/new.html.twig', [
             'item' => $item,
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/equiped_weapons', name: 'app_weapon_item_equiped', methods: ['GET'])]
+    public function getEquipedWeapons(ItemRepository $itemRepository): Response
+    {
+        $items = $itemRepository->getWeaponsEquiped();
+
+        $serializedItems = [];
+
+        foreach($items as $item){
+            $serializedItems[] = [
+                'id' => $item->getId(),
+                'name' => $item->getName(),
+                'description' => $item->getDescription(),
+                'image' => $item->getImageFilename(),
+                'attackPower' => $item->getAttackPower(),
+                'criticalStrikeChance' => $item->getCriticalStrikeChance(),
+                'defense' => $item->getDefense(),
+                'state' => $item->getState(),
+            ];
+        }
+
+        $data = $this->serializer->serialize($serializedItems, 'json');
+
+        return new Response($data, Response::HTTP_OK, [
+            'Content-Type' => 'application/json'
+        ]);
+    }
+
+    #[Route('/equiped_amulet', name: 'app_amulet_item_equiped', methods: ['GET'])]
+    public function getEquipedAmulet(ItemRepository $itemRepository): Response
+    {
+        $items = $itemRepository->getAmuletEquiped();
+
+        $serializedItems = [];
+
+        foreach($items as $item){
+            $serializedItems[] = [
+                'id' => $item->getId(),
+                'name' => $item->getName(),
+                'description' => $item->getDescription(),
+                'image' => $item->getImageFilename(),
+                'attackPower' => $item->getAttackPower(),
+                'criticalStrikeChance' => $item->getCriticalStrikeChance(),
+                'defense' => $item->getDefense(),
+                'state' => $item->getState(),
+            ];
+        }
+
+        $data = $this->serializer->serialize($serializedItems, 'json');
+
+        return new Response($data, Response::HTTP_OK, [
+            'Content-Type' => 'application/json'
         ]);
     }
 
