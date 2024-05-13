@@ -92,24 +92,28 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id}/save-slots', name: 'app_user_save_slots', methods: ['GET'])]
-    public function getSaveSlots(User $user): Response
+    public function getUserActiveSaveSlots(User $user): Response
     {
         $saveSlots = $user->getGame()->getSaveSlot();
 
         $serializedSaveSlots = [];
         foreach ($saveSlots as $saveSlot) {
-            $serializedSaveSlot = [
-                'id' => $saveSlot->getId(),
-                'creationDate' => $saveSlot->getCreationDate(),
-                'money' => $saveSlot->getMoney(),
-                'kills' => $saveSlot->getKills(),
-                'stage' => array_map(function ($stage) {
-                    return [
-                        'id' => $stage->getId(),
-                        'stage' => $stage->getStage(),
-                    ];
-                }, $saveSlot->getStage()->toArray()),
-            ];
+            if ($saveSlot->getState() == 0) // 0 partida activa
+            {
+                $serializedSaveSlot = [
+                    'id' => $saveSlot->getId(),
+                    'creationDate' => $saveSlot->getCreationDate(),
+                    'money' => $saveSlot->getMoney(),
+                    'kills' => $saveSlot->getKills(),
+                    'state' => $saveSlot->getState(),
+                    'stage' => array_map(function ($stage) {
+                        return [
+                            'id' => $stage->getId(),
+                            'stage' => $stage->getStage(),
+                        ];
+                    }, $saveSlot->getStage()->toArray()),
+                ];
+            }
             $serializedSaveSlots[] = $serializedSaveSlot;
         }
 

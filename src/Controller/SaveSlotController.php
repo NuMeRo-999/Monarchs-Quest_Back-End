@@ -35,14 +35,20 @@ class SaveSlotController extends AbstractController
     {
         $saveSlots = $saveSlotRepository->findAll();
 
-        // Serializar los objetos SaveSlot excluyendo las propiedades problemáticas
         $serializedSaveSlots = [];
         foreach ($saveSlots as $saveSlot) {
             $serializedSaveSlot = [
                 'id' => $saveSlot->getId(),
                 'creationDate' => $saveSlot->getCreationDate(),
                 'money' => $saveSlot->getMoney(),
+                'kills' => $saveSlot->getKills(),
                 'game' => $saveSlot->getGame()->getId(),  
+                'user' => array_map(function ($user) {
+                    return [
+                        'id' => $user->getId(),
+                        'username' => $user->getUsername(),
+                    ];  
+                }, $saveSlot->getGame()->getUser()->toArray()),
                 'stage' => array_map(function ($stage){
                     return [
                         'id' => $stage->getId(),

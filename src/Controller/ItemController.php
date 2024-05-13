@@ -73,7 +73,7 @@ class ItemController extends AbstractController
     }
 
     #[Route('/equiped_weapons', name: 'app_weapon_item_equiped', methods: ['GET'])]
-    public function getEquipedWeapons(ItemRepository $itemRepository): Response
+    public function getEquippedWeapons(ItemRepository $itemRepository): Response
     {
         $items = $itemRepository->getWeaponsEquiped();
 
@@ -100,7 +100,7 @@ class ItemController extends AbstractController
     }
 
     #[Route('/equiped_amulet', name: 'app_amulet_item_equiped', methods: ['GET'])]
-    public function getEquipedAmulet(ItemRepository $itemRepository): Response
+    public function getEquippedAmulet(ItemRepository $itemRepository): Response
     {
         $items = $itemRepository->getAmuletEquiped();
 
@@ -111,6 +111,34 @@ class ItemController extends AbstractController
                 'id' => $item->getId(),
                 'name' => $item->getName(),
                 'description' => $item->getDescription(),
+                'image' => $item->getImageFilename(),
+                'attackPower' => $item->getAttackPower(),
+                'criticalStrikeChance' => $item->getCriticalStrikeChance(),
+                'defense' => $item->getDefense(),
+                'state' => $item->getState(),
+            ];
+        }
+
+        $data = $this->serializer->serialize($serializedItems, 'json');
+
+        return new Response($data, Response::HTTP_OK, [
+            'Content-Type' => 'application/json'
+        ]);
+    }
+
+    #[Route('/equiped_items', name: 'app_item_equiped', methods: ['GET'])]
+    public function getEquippedItems(ItemRepository $itemRepository): Response
+    {
+        $items = $itemRepository->getItemInInventory();
+
+        $serializedItems = [];
+
+        foreach($items as $item){
+            $serializedItems[] = [
+                'id' => $item->getId(),
+                'name' => $item->getName(),
+                'description' => $item->getDescription(),
+                'quantity' => $item->getQuantity(),
                 'image' => $item->getImageFilename(),
                 'attackPower' => $item->getAttackPower(),
                 'criticalStrikeChance' => $item->getCriticalStrikeChance(),

@@ -95,6 +95,22 @@ class ItemRepository extends ServiceEntityRepository
         return $items;
     }
 
+    public function getItemInInventory() {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        $qb->select('i')
+        ->from(Item::class, 'i')
+        ->join('i.heroes', 'h')
+        ->andWhere('i.state = :state')
+        ->setParameter('state', true);
+
+        $query = $qb->getQuery();
+
+        $items = $query->getResult();
+
+        return $items;
+    }
+
     //    /**
     //     * @return Item[] Returns an array of Item objects
     //     */
