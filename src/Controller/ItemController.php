@@ -129,7 +129,7 @@ class ItemController extends AbstractController
     #[Route('/equiped_items', name: 'app_item_equiped', methods: ['GET'])]
     public function getEquippedItems(ItemRepository $itemRepository): Response
     {
-        $items = $itemRepository->getItemInInventory();
+        $items = $itemRepository->getItemAtInventory();
 
         $serializedItems = [];
 
