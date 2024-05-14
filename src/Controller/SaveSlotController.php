@@ -42,14 +42,14 @@ class SaveSlotController extends AbstractController
                 'creationDate' => $saveSlot->getCreationDate(),
                 'money' => $saveSlot->getMoney(),
                 'kills' => $saveSlot->getKills(),
-                'game' => $saveSlot->getGame()->getId(),  
+                'game' => $saveSlot->getGame()->getId(),
                 'user' => array_map(function ($user) {
                     return [
                         'id' => $user->getId(),
                         'username' => $user->getUsername(),
-                    ];  
+                    ];
                 }, $saveSlot->getGame()->getUser()->toArray()),
-                'stage' => array_map(function ($stage){
+                'stage' => array_map(function ($stage) {
                     return [
                         'id' => $stage->getId(),
                         'stage' => $stage->getStage(),
@@ -108,7 +108,7 @@ class SaveSlotController extends AbstractController
 
         return $this->json(['error' => 'Invalid data'], 400);
     }
-    
+
     #[Route('/create/{user}', name: 'app_save_slot_create', methods: ['POST'])]
     public function createSaveSlot(Request $request, User $user, EntityManagerInterface $entityManager, HeroeRepository $heroeRepository, EnemyRepository $enemyRepository, ItemRepository $itemRepository): Response
     {
@@ -146,7 +146,7 @@ class SaveSlotController extends AbstractController
             $stage->addEnemy($enemy);
             $entityManager->persist($enemy);
         }
-        
+
         $saveSlot->addStage($stage);
 
         // Persistir los objetos y guardar en la base de datos
@@ -173,7 +173,7 @@ class SaveSlotController extends AbstractController
             'money' => $saveSlot->getMoney(),
             'kills' => $saveSlot->getKills(),
             'game' => $saveSlot->getGame()->getId(),
-            'stage' => array_map(function ($stage){
+            'stage' => array_map(function ($stage) {
                 return [
                     'id' => $stage->getId(),
                     'stage' => $stage->getStage(),
@@ -196,6 +196,9 @@ class SaveSlotController extends AbstractController
                                     'name' => $ability->getName(),
                                     'description' => $ability->getDescription(),
                                     'attack_damage' => $ability->getAttackDamage(),
+                                    'critical_strike_chance' => $ability->getCriticalStrikeChance(),
+                                    'defense' => $ability->getDefense(),
+                                    'health_points' => $ability->getHealthPoints(),
                                     'type' => $ability->getType(),
                                     'imageFilename' => $ability->getImageFilename(),
                                 ];
@@ -246,6 +249,21 @@ class SaveSlotController extends AbstractController
     #[Route('/{id}', name: 'app_save_slot_delete', methods: ['DELETE'])]
     public function delete(Request $request, SaveSlot $saveSlot, EntityManagerInterface $entityManager): Response
     {
+        // Elimino todos los items y heroes relacionados
+
+
+        
+        foreach ($saveSlot->getStage() as $stage) {
+            foreach ($stage->getHeroes() as $hero) {
+            $entityManager->remove($hero);
+            }
+            $entityManager->remove($stage);
+        }
+
+        foreach ($saveSlot->getInventario() as $item) {
+            $entityManager->remove($item);
+        }
+
         $entityManager->remove($saveSlot);
         $entityManager->flush();
 

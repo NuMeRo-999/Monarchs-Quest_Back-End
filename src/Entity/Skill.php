@@ -42,6 +42,15 @@ class Skill
     #[ORM\Column(type: 'string')]
     private string $imageFilename;
 
+    #[ORM\Column]
+    private ?int $healthPoints = null;
+
+    #[ORM\Column]
+    private ?int $defense = null;
+
+    #[ORM\Column]
+    private ?int $criticalStrikeChance = null;
+
     public function __construct()
     {
         $this->effect = new ArrayCollection();
@@ -160,6 +169,42 @@ class Skill
     public function setImageFilename(string $ImageFilename): self
     {
         $this->imageFilename = $ImageFilename;
+
+        return $this;
+    }
+
+    public function getHealthPoints(): ?int
+    {
+        return $this->healthPoints;
+    }
+
+    public function setHealthPoints(int $healthPoints): static
+    {
+        $this->healthPoints = $healthPoints;
+
+        return $this;
+    }
+
+    public function getDefense(): ?int
+    {
+        return $this->defense;
+    }
+
+    public function setDefense(int $defense): static
+    {
+        $this->defense = $defense;
+
+        return $this;
+    }
+
+    public function getCriticalStrikeChance(): ?int
+    {
+        return $this->criticalStrikeChance;
+    }
+
+    public function setCriticalStrikeChance(int $criticalStrikeChance): static
+    {
+        $this->criticalStrikeChance = $criticalStrikeChance;
 
         return $this;
     }

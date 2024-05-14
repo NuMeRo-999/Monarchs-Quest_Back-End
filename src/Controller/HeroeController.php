@@ -2,9 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Enemy;
 use App\Entity\Heroe;
+use App\Entity\Skill;
 use App\Form\Heroe1Type;
 use App\Repository\HeroeRepository;
+use App\Repository\ItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -60,6 +63,32 @@ class HeroeController extends AbstractController
             'heroe' => $heroe,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/attack/{heroe}/{enemy}/{skill}', name: 'app_heroe_attack', methods: ['GET'])]
+    public function attack(Heroe $heroe, Enemy $enemy, Skill $skill, EntityManagerInterface $entityManager, ItemRepository $itemRepository)
+    {
+
+        $weapon = $itemRepository->getWeaponsEquiped($heroe->getId());
+        $amulet = $itemRepository->getAmuletEquiped($heroe->getId());
+
+        $criticalStrikeChance = $heroe->getCriticalStrikeChance() + $weapon->getCriticalStrikeChance() + $amulet->getCriticalStrikeChance() + $skill->getCriticalStrikeChance();
+        $damage = $heroe->getAttackPower() + $weapon->getAttackPower() + $amulet->getAttackPower() + $skill->getAttackDamage();
+
+        $randomNumber = mt_rand(1, 100);
+
+        if ($randomNumber <= $criticalStrikeChance) {
+            $damage *= 2;
+        }
+
+        $enemy->setHealthPoints($enemy->getHealthPoints() - $damage);
+
+        if($enemy->getHealthPoints() <= 0) {
+            $enemy->setState(false);
+        }
+
+        $entityManager->flush();
+
     }
 
     #[Route('/{id}', name: 'app_heroe_show', methods: ['GET'])]

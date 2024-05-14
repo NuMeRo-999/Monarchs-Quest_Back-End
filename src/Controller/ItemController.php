@@ -87,6 +87,7 @@ class ItemController extends AbstractController
                 'image' => $item->getImageFilename(),
                 'attackPower' => $item->getAttackPower(),
                 'criticalStrikeChance' => $item->getCriticalStrikeChance(),
+                'healthPoints' => $item->getHealthPoints(),
                 'defense' => $item->getDefense(),
                 'state' => $item->getState(),
             ];
@@ -114,6 +115,7 @@ class ItemController extends AbstractController
                 'image' => $item->getImageFilename(),
                 'attackPower' => $item->getAttackPower(),
                 'criticalStrikeChance' => $item->getCriticalStrikeChance(),
+                'healthPoints' => $item->getHealthPoints(),
                 'defense' => $item->getDefense(),
                 'state' => $item->getState(),
             ];
@@ -142,6 +144,7 @@ class ItemController extends AbstractController
                 'image' => $item->getImageFilename(),
                 'attackPower' => $item->getAttackPower(),
                 'criticalStrikeChance' => $item->getCriticalStrikeChance(),
+                'healthPoints' => $item->getHealthPoints(),
                 'defense' => $item->getDefense(),
                 'type' => $item->getType(),
                 'state' => $item->getState(),
@@ -166,6 +169,7 @@ class ItemController extends AbstractController
             'attackPower' => $item->getAttackPower(),
             'criticalStrikeChance' => $item->getCriticalStrikeChance(),
             'defense' => $item->getDefense(),
+            'healthPoints' => $item->getHealthPoints(),
             'state' => $item->getState(),
         ];
 

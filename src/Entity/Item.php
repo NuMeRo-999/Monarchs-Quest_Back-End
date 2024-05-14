@@ -57,6 +57,9 @@ class Item
     #[ORM\Column]
     private ?bool $state = null;
 
+    #[ORM\Column]
+    private ?int $healthPoints = null;
+
     public function __construct()
     {
         $this->saveSlots = new ArrayCollection();
@@ -238,6 +241,18 @@ class Item
     public function setState(bool $state): static
     {
         $this->state = $state;
+
+        return $this;
+    }
+
+    public function getHealthPoints(): ?int
+    {
+        return $this->healthPoints;
+    }
+
+    public function setHealthPoints(int $healthPoints): static
+    {
+        $this->healthPoints = $healthPoints;
 
         return $this;
     }
