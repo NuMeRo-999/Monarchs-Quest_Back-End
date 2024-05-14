@@ -145,6 +145,7 @@ class ItemController extends AbstractController
                 'attackPower' => $item->getAttackPower(),
                 'criticalStrikeChance' => $item->getCriticalStrikeChance(),
                 'healthPoints' => $item->getHealthPoints(),
+                'maxHealthPoints' => $item->getMaxHealthPoints(),
                 'defense' => $item->getDefense(),
                 'type' => $item->getType(),
                 'state' => $item->getState(),
@@ -170,6 +171,7 @@ class ItemController extends AbstractController
             'criticalStrikeChance' => $item->getCriticalStrikeChance(),
             'defense' => $item->getDefense(),
             'healthPoints' => $item->getHealthPoints(),
+            'maxHealthPoints' => $item->getMaxHealthPoints(),
             'state' => $item->getState(),
         ];
 
