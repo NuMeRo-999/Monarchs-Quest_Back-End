@@ -60,6 +60,9 @@ class Item
     #[ORM\Column]
     private ?int $healthPoints = null;
 
+    #[ORM\Column]
+    private ?int $maxHealthPoints = null;
+
     public function __construct()
     {
         $this->saveSlots = new ArrayCollection();
@@ -253,6 +256,18 @@ class Item
     public function setHealthPoints(int $healthPoints): static
     {
         $this->healthPoints = $healthPoints;
+
+        return $this;
+    }
+
+    public function getMaxHealthPoints(): ?int
+    {
+        return $this->maxHealthPoints;
+    }
+
+    public function setMaxHealthPoints(int $maxHealthPoints): static
+    {
+        $this->maxHealthPoints = $maxHealthPoints;
 
         return $this;
     }
