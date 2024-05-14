@@ -40,7 +40,6 @@ class ItemRepository extends ServiceEntityRepository
         $generatedItems = [];
         foreach ($items as $itemType) {
 
-            // dd($itemType);
             $item = new Item();
             $item->setName($itemType->getName());
             $item->setDescription($itemType->getDescription());

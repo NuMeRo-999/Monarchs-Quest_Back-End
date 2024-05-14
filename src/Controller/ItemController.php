@@ -24,7 +24,7 @@ class ItemController extends AbstractController
     {
         $this->serializer = $serializer;
     }
-    
+
     #[Route('/', name: 'app_item_index', methods: ['GET'])]
     public function index(ItemRepository $itemRepository): Response
     {
@@ -79,7 +79,7 @@ class ItemController extends AbstractController
 
         $serializedItems = [];
 
-        foreach($items as $item){
+        foreach ($items as $item) {
             $serializedItems[] = [
                 'id' => $item->getId(),
                 'name' => $item->getName(),
@@ -106,7 +106,7 @@ class ItemController extends AbstractController
 
         $serializedItems = [];
 
-        foreach($items as $item){
+        foreach ($items as $item) {
             $serializedItems[] = [
                 'id' => $item->getId(),
                 'name' => $item->getName(),
@@ -133,7 +133,7 @@ class ItemController extends AbstractController
 
         $serializedItems = [];
 
-        foreach($items as $item){
+        foreach ($items as $item) {
             $serializedItems[] = [
                 'id' => $item->getId(),
                 'name' => $item->getName(),
@@ -143,6 +143,7 @@ class ItemController extends AbstractController
                 'attackPower' => $item->getAttackPower(),
                 'criticalStrikeChance' => $item->getCriticalStrikeChance(),
                 'defense' => $item->getDefense(),
+                'type' => $item->getType(),
                 'state' => $item->getState(),
             ];
         }
@@ -157,8 +158,21 @@ class ItemController extends AbstractController
     #[Route('/{id}', name: 'app_item_show', methods: ['GET'])]
     public function show(Item $item): Response
     {
-        return $this->render('item/show.html.twig', [
-            'item' => $item,
+        $serializedItem = [
+            'id' => $item->getId(),
+            'name' => $item->getName(),
+            'description' => $item->getDescription(),
+            'image' => $item->getImageFilename(),
+            'attackPower' => $item->getAttackPower(),
+            'criticalStrikeChance' => $item->getCriticalStrikeChance(),
+            'defense' => $item->getDefense(),
+            'state' => $item->getState(),
+        ];
+
+        $data = $this->serializer->serialize($serializedItem, 'json');
+
+        return new Response($data, Response::HTTP_OK, [
+            'Content-Type' => 'application/json'
         ]);
     }
 
