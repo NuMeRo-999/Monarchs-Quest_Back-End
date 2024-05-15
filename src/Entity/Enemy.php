@@ -32,7 +32,7 @@ class Enemy
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $state = null;
 
-    #[ORM\ManyToOne(inversedBy: 'enemies')]
+    #[ORM\ManyToOne(inversedBy: 'enemies', cascade: ['remove'])]
     private ?Stage $stage = null;
 
     #[ORM\Column(length: 255)]

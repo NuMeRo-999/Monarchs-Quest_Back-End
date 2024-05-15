@@ -48,7 +48,7 @@ class Heroe
     /**
      * @var Collection<int, Item>
      */
-    #[ORM\ManyToMany(targetEntity: Item::class, inversedBy: 'heroes')]
+    #[ORM\ManyToMany(targetEntity: Item::class, inversedBy: 'heroes' , cascade: ['remove'])]
     private Collection $weapon_1;
 
     #[ORM\Column]

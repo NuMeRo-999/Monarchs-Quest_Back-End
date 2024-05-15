@@ -21,17 +21,17 @@ class Stage
     /**
      * @var Collection<int, Heroe>
      */
-    #[ORM\ManyToMany(targetEntity: Heroe::class, inversedBy: 'stages')]
+    #[ORM\ManyToMany(targetEntity: Heroe::class, inversedBy: 'stages', cascade: ['remove'])]
     private Collection $heroes;
 
-    #[ORM\ManyToOne(inversedBy: 'stage')]
+    #[ORM\ManyToOne(inversedBy: 'stage', cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?SaveSlot $saveSlot = null;
 
     /**
      * @var Collection<int, Enemy>
      */
-    #[ORM\OneToMany(targetEntity: Enemy::class, mappedBy: 'stage')]
+    #[ORM\OneToMany(targetEntity: Enemy::class, mappedBy: 'stage' , cascade: ['remove'])]
     private Collection $enemies;
 
     public function __construct()

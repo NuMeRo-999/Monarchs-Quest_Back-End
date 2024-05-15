@@ -31,13 +31,13 @@ class SaveSlot
     /**
      * @var Collection<int, Item>
      */
-    #[ORM\ManyToMany(targetEntity: Item::class, inversedBy: 'saveSlots')]
+    #[ORM\ManyToMany(targetEntity: Item::class, inversedBy: 'saveSlots', cascade: ['remove'])]
     private Collection $inventario;
 
     /**
      * @var Collection<int, Stage>
      */
-    #[ORM\OneToMany(targetEntity: Stage::class, mappedBy: 'saveSlot')]
+    #[ORM\OneToMany(targetEntity: Stage::class, mappedBy: 'saveSlot' , cascade: ['remove'])]
     private Collection $stage;
 
     #[ORM\Column]

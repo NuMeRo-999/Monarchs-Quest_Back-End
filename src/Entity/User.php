@@ -31,7 +31,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\ManyToOne(inversedBy: 'user')]
+    #[ORM\ManyToOne(inversedBy: 'user' , cascade: ['remove'])]
     private ?Game $game = null;
 
     public function getId(): ?int
