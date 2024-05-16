@@ -21,6 +21,15 @@ class StageRepository extends ServiceEntityRepository
         parent::__construct($registry, Stage::class);
     }
 
+    public function findAllAliveEnemies(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.state = :state')
+            ->setParameter('state', 1)
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Stage[] Returns an array of Stage objects
 //     */

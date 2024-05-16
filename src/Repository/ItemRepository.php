@@ -48,6 +48,8 @@ class ItemRepository extends ServiceEntityRepository
             $item->setDefense($itemType->getDefense());
             $item->setQuantity($itemType->getQuantity());
             $item->setRarity($itemType->getRarity());
+            $item->setHealthPoints($itemType->getHealthPoints());
+            $item->setMaxHealthPoints($itemType->getMaxHealthPoints());
             $item->setType($itemType->getType());
             $item->setImageFilename($itemType->getImageFilename());
             $item->setState($itemType->getState());

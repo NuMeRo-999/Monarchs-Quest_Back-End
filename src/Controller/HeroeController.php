@@ -8,6 +8,7 @@ use App\Entity\Skill;
 use App\Form\Heroe1Type;
 use App\Repository\HeroeRepository;
 use App\Repository\ItemRepository;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -65,29 +66,55 @@ class HeroeController extends AbstractController
         ]);
     }
 
+    #[Route('/buff/{heroe}/{skill}', name: 'app_heroe_buff', methods: ['GET'])]
+    public function buff(Heroe $heroe, Skill $skill, EntityManager $entityManager )
+    {
+        // preguntar si filtrar por if o hacerlo así
+        $heroe->setDefense($heroe->getDefense() + $skill->getDefense());
+        $heroe->setHealthPoints($heroe->getHealthPoints() + $skill->getHealthPoints());
+        $heroe->setMaxHealthPoints($heroe->getMaxHealthPoints() + $skill->getHealthPoints());
+        $heroe->setAttackPower($heroe->getAttackPower() + $skill->getAttackDamage());
+        $heroe->setCriticalStrikeChance($heroe->getCriticalStrikeChance() + $skill->getCriticalStrikeChance());
+        
+        $entityManager->flush();
+    }
+
     #[Route('/attack/{heroe}/{enemy}/{skill}', name: 'app_heroe_attack', methods: ['GET'])]
     public function attack(Heroe $heroe, Enemy $enemy, Skill $skill, EntityManagerInterface $entityManager, ItemRepository $itemRepository)
     {
 
         $weapon = $itemRepository->getWeaponsEquiped($heroe->getId());
         $amulet = $itemRepository->getAmuletEquiped($heroe->getId());
+        $saveSlot = $heroe->getStages()->toArray()[0]->getSaveSlot();
 
-        $criticalStrikeChance = $heroe->getCriticalStrikeChance() + $weapon->getCriticalStrikeChance() + $amulet->getCriticalStrikeChance() + $skill->getCriticalStrikeChance();
-        $damage = $heroe->getAttackPower() + $weapon->getAttackPower() + $amulet->getAttackPower() + $skill->getAttackDamage();
+        $weaponDamage = 0;
+        $weaponCriticalStrikeChance = 0;
+        foreach ($weapon as $w) {
+            $weaponDamage += $w->getAttackPower();
+            $weaponCriticalStrikeChance += $w->getCriticalStrikeChance();
+        }
+
+        $criticalStrikeChance = $heroe->getCriticalStrikeChance() + $weaponCriticalStrikeChance + $amulet[0]->getCriticalStrikeChance() + $skill->getCriticalStrikeChance();
+        $damage = $heroe->getAttackPower() + $weaponDamage + $amulet[0]->getAttackPower() + $skill->getAttackDamage();
 
         $randomNumber = mt_rand(1, 100);
 
         if ($randomNumber <= $criticalStrikeChance) {
             $damage *= 2;
+            dd('Critical Strike! Damage: ' . $damage);
         }
 
         $enemy->setHealthPoints($enemy->getHealthPoints() - $damage);
 
         if($enemy->getHealthPoints() <= 0) {
+            $saveSlot->setKills($saveSlot->getKills() + 1);
             $enemy->setState(false);
+            $enemy->setHealthPoints(0);
         }
 
         $entityManager->flush();
+
+        return new Response('Attack successful', Response::HTTP_OK);
 
     }
 
