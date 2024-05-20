@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -29,7 +30,7 @@ class HeroeController extends AbstractController
     }
 
     #[Route('/new', name: 'app_heroe_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, EnemyController $enemyController): Response
     {
         $heroe = new Heroe();
         $form = $this->createForm(Heroe1Type::class, $heroe);
@@ -114,7 +115,27 @@ class HeroeController extends AbstractController
 
         $entityManager->flush();
 
-        return new Response('Attack successful', Response::HTTP_OK);
+        $enemies = $heroe->getStages()->toArray()[0]->getEnemies()->toArray();
+
+        $enemiesData = [];
+        foreach ($enemies as $enemy) {
+            $enemiesData[] = [
+                'id' => $enemy->getId(),
+                'healthPoints' => $enemy->getHealthPoints(),
+                'attackPower' => $enemy->getAttackPower(),
+                'defense' => $enemy->getDefense(),
+                'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+                'level' => $enemy->getLevel(),
+                'state' => $enemy->getState(),
+                'name' => $enemy->getName(),
+                'imageFilename' => $enemy->getImageFilename(),
+            ];
+        }
+
+        return new JsonResponse([
+            'message' => 'Attack successful',
+            'enemies' => $enemiesData,
+        ], Response::HTTP_OK);
 
     }
 
