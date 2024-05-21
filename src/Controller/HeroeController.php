@@ -30,7 +30,7 @@ class HeroeController extends AbstractController
     }
 
     #[Route('/new', name: 'app_heroe_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, EnemyController $enemyController): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $heroe = new Heroe();
         $form = $this->createForm(Heroe1Type::class, $heroe);
@@ -68,16 +68,28 @@ class HeroeController extends AbstractController
     }
 
     #[Route('/buff/{heroe}/{skill}', name: 'app_heroe_buff', methods: ['GET'])]
-    public function buff(Heroe $heroe, Skill $skill, EntityManager $entityManager )
+    public function buff(Heroe $heroe, Skill $skill, EntityManagerInterface $entityManager)
     {
-        // preguntar si filtrar por if o hacerlo así
         $heroe->setDefense($heroe->getDefense() + $skill->getDefense());
         $heroe->setHealthPoints($heroe->getHealthPoints() + $skill->getHealthPoints());
         $heroe->setMaxHealthPoints($heroe->getMaxHealthPoints() + $skill->getHealthPoints());
         $heroe->setAttackPower($heroe->getAttackPower() + $skill->getAttackDamage());
         $heroe->setCriticalStrikeChance($heroe->getCriticalStrikeChance() + $skill->getCriticalStrikeChance());
-        
+
         $entityManager->flush();
+
+        return new JsonResponse([
+            'id' => $heroe->getId(),
+            'level' => $heroe->getLevel(),
+            'experience' => $heroe->getExperience(),
+            'name' => $heroe->getName(),
+            'healthPoints' => $heroe->getHealthPoints(),
+            'maxHealthPoints' => $heroe->getMaxHealthPoints(),
+            'attackPower' => $heroe->getAttackPower(),
+            'defense' => $heroe->getDefense(),
+            'criticalStrikeChance' => $heroe->getCriticalStrikeChance(),
+            'imageFilename' => $heroe->getImageFilename(),
+        ], Response::HTTP_OK);
     }
 
     #[Route('/attack/{heroe}/{enemy}/{skill}', name: 'app_heroe_attack', methods: ['GET'])]
@@ -133,7 +145,6 @@ class HeroeController extends AbstractController
         }
 
         return new JsonResponse([
-            'message' => 'Attack successful',
             'enemies' => $enemiesData,
         ], Response::HTTP_OK);
 
