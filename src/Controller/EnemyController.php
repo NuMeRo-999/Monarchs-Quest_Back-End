@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Enemy;
+use App\Entity\Heroe;
 use App\Form\EnemyType;
 use App\Repository\EnemyRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Faker\Factory;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/enemy')]
@@ -63,6 +65,102 @@ class EnemyController extends AbstractController
         ]);
     }
 
+    #[Route('/attack/{heroe}/{enemy}', name: 'app_enemy_attack', methods: ['GET'])]
+    public function enemyAttack(Heroe $heroe, Enemy $enemy, EntityManagerInterface $entityManager): Response
+    {
+        $damage = $enemy->getAttackPower() - $heroe->getDefense();
+        if ($damage < 0) {
+            $damage = 0;
+        }
+
+        $heroe->setHealthPoints($heroe->getHealthPoints() - $damage);
+
+        if ($heroe->getHealthPoints() <= 0) {
+            $heroe->setHealthPoints(0);
+            $heroe->setState(false);
+        }
+
+        $heroe->getStages()->toArray()[0]->setState(1);
+        
+        $entityManager->flush();
+        
+        $saveSlot = $heroe->getStages()->toArray()[0]->getSaveSlot();
+
+        $saveSlotData = [
+            'id' => $saveSlot->getId(),
+            'creationDate' => $saveSlot->getCreationDate(),
+            'money' => $saveSlot->getMoney(),
+            'kills' => $saveSlot->getKills(),
+            'game' => $saveSlot->getGame()->getId(),
+            'stage' => array_map(function ($stage) {
+                return [
+                    'id' => $stage->getId(),
+                    'stage' => $stage->getStage(),
+                    'state' => $stage->getState(),
+                    'heroes' => array_map(function ($hero) {
+                        return [
+                            'id' => $hero->getId(),
+                            'healthPoints' => $hero->getHealthPoints(),
+                            'attackPower' => $hero->getAttackPower(),
+                            'criticalStrikeChance' => $hero->getCriticalStrikeChance(),
+                            'defense' => $hero->getDefense(),
+                            'experience' => $hero->getExperience(),
+                            'level' => $hero->getLevel(),
+                            'state' => $hero->getState(),
+                            'maxHealthPoints' => $hero->getMaxHealthPoints(),
+                            'imageFilename' => $hero->getImageFilename(),
+                            'name' => $hero->getName(),
+                            'abilities' => array_map(function ($ability) {
+                                return [
+                                    'id' => $ability->getId(),
+                                    'name' => $ability->getName(),
+                                    'description' => $ability->getDescription(),
+                                    'attack_damage' => $ability->getAttackDamage(),
+                                    'critical_strike_chance' => $ability->getCriticalStrikeChance(),
+                                    'defense' => $ability->getDefense(),
+                                    'health_points' => $ability->getHealthPoints(),
+                                    'type' => $ability->getType(),
+                                    'imageFilename' => $ability->getImageFilename(),
+                                ];
+                            }, $hero->getAbilities()->toArray()),
+                        ];
+                    }, $stage->getHeroes()->toArray()),
+                    'enemies' => array_map(function ($enemy) {
+                        return [
+                            'id' => $enemy->getId(),
+                            'healthPoints' => $enemy->getHealthPoints(),
+                            'attackPower' => $enemy->getAttackPower(),
+                            'defense' => $enemy->getDefense(),
+                            'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+                            'level' => $enemy->getLevel(),
+                            'state' => $enemy->getState(),
+                            'name' => $enemy->getName(),
+                            'imageFilename' => $enemy->getImageFilename(),
+                        ];
+                    }, $stage->getEnemies()->toArray())
+                ];
+            }, $saveSlot->getStage()->toArray()),
+        ];
+
+        $heroeData = [
+            'id' => $heroe->getId(),
+            'level' => $heroe->getLevel(),
+            'experience' => $heroe->getExperience(),
+            'name' => $heroe->getName(),
+            'healthPoints' => $heroe->getHealthPoints(),
+            'maxHealthPoints' => $heroe->getMaxHealthPoints(),
+            'attackPower' => $heroe->getAttackPower(),
+            'defense' => $heroe->getDefense(),
+            'criticalStrikeChance' => $heroe->getCriticalStrikeChance(),
+            'imageFilename' => $heroe->getImageFilename(),
+        ];
+
+        return new JsonResponse([
+            'heroe' => $heroeData,
+            'saveSlot' => $saveSlotData
+        ], Response::HTTP_OK);
+    }
+
     #[Route('/{id}', name: 'app_enemy_show', methods: ['GET'])]
     public function show(Enemy $enemy): Response
     {
@@ -70,6 +168,7 @@ class EnemyController extends AbstractController
             'enemy' => $enemy,
         ]);
     }
+    
 
     #[Route('/{id}/edit', name: 'app_enemy_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Enemy $enemy, EntityManagerInterface $entityManager): Response
