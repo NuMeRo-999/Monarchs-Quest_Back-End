@@ -76,9 +76,71 @@ class HeroeController extends AbstractController
         $heroe->setAttackPower($heroe->getAttackPower() + $skill->getAttackDamage());
         $heroe->setCriticalStrikeChance($heroe->getCriticalStrikeChance() + $skill->getCriticalStrikeChance());
 
+        $stage = $heroe->getStages()->toArray()[0];
+        $stage->setState(2);
+
         $entityManager->flush();
 
-        return new JsonResponse([
+        $saveSlot = $heroe->getStages()->toArray()[0]->getSaveSlot();
+        
+
+        $saveSlotData = [
+            'id' => $saveSlot->getId(),
+            'creationDate' => $saveSlot->getCreationDate(),
+            'money' => $saveSlot->getMoney(),
+            'kills' => $saveSlot->getKills(),
+            'game' => $saveSlot->getGame()->getId(),
+            'stage' => array_map(function ($stage) {
+                return [
+                    'id' => $stage->getId(),
+                    'stage' => $stage->getStage(),
+                    'state' => $stage->getState(),
+                    'heroes' => array_map(function ($hero) {
+                        return [
+                            'id' => $hero->getId(),
+                            'healthPoints' => $hero->getHealthPoints(),
+                            'attackPower' => $hero->getAttackPower(),
+                            'criticalStrikeChance' => $hero->getCriticalStrikeChance(),
+                            'defense' => $hero->getDefense(),
+                            'experience' => $hero->getExperience(),
+                            'level' => $hero->getLevel(),
+                            'state' => $hero->getState(),
+                            'maxHealthPoints' => $hero->getMaxHealthPoints(),
+                            'imageFilename' => $hero->getImageFilename(),
+                            'name' => $hero->getName(),
+                            'abilities' => array_map(function ($ability) {
+                                return [
+                                    'id' => $ability->getId(),
+                                    'name' => $ability->getName(),
+                                    'description' => $ability->getDescription(),
+                                    'attack_damage' => $ability->getAttackDamage(),
+                                    'critical_strike_chance' => $ability->getCriticalStrikeChance(),
+                                    'defense' => $ability->getDefense(),
+                                    'health_points' => $ability->getHealthPoints(),
+                                    'type' => $ability->getType(),
+                                    'imageFilename' => $ability->getImageFilename(),
+                                ];
+                            }, $hero->getAbilities()->toArray()),
+                        ];
+                    }, $stage->getHeroes()->toArray()),
+                    'enemies' => array_map(function ($enemy) {
+                        return [
+                            'id' => $enemy->getId(),
+                            'healthPoints' => $enemy->getHealthPoints(),
+                            'attackPower' => $enemy->getAttackPower(),
+                            'defense' => $enemy->getDefense(),
+                            'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+                            'level' => $enemy->getLevel(),
+                            'state' => $enemy->getState(),
+                            'name' => $enemy->getName(),
+                            'imageFilename' => $enemy->getImageFilename(),
+                        ];
+                    }, $stage->getEnemies()->toArray())
+                ];
+            }, $saveSlot->getStage()->toArray()),
+        ];
+
+        $heroeData = [
             'id' => $heroe->getId(),
             'level' => $heroe->getLevel(),
             'experience' => $heroe->getExperience(),
@@ -89,6 +151,11 @@ class HeroeController extends AbstractController
             'defense' => $heroe->getDefense(),
             'criticalStrikeChance' => $heroe->getCriticalStrikeChance(),
             'imageFilename' => $heroe->getImageFilename(),
+        ];
+
+        return new JsonResponse([
+            'heroe' => $heroeData,
+            'saveSlot' => $saveSlotData
         ], Response::HTTP_OK);
     }
 
@@ -118,9 +185,13 @@ class HeroeController extends AbstractController
         }
 
         $enemy->setHealthPoints($enemy->getHealthPoints() - $damage);
+        $stage = $heroe->getStages()->toArray()[0];
+        $stage->setState(2);
 
         if($enemy->getHealthPoints() <= 0) {
             $saveSlot->setKills($saveSlot->getKills() + 1);
+            $heroe->setExperience($heroe->getExperience() + (20 * $enemy->getLevel()));
+            $saveSlot->setMoney($saveSlot->getMoney() + (5 * $enemy->getLevel()));
             $enemy->setState(false);
             $enemy->setHealthPoints(0);
         }
@@ -132,20 +203,93 @@ class HeroeController extends AbstractController
         $enemiesData = [];
         foreach ($enemies as $enemy) {
             $enemiesData[] = [
-                'id' => $enemy->getId(),
-                'healthPoints' => $enemy->getHealthPoints(),
-                'attackPower' => $enemy->getAttackPower(),
-                'defense' => $enemy->getDefense(),
-                'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
-                'level' => $enemy->getLevel(),
-                'state' => $enemy->getState(),
-                'name' => $enemy->getName(),
-                'imageFilename' => $enemy->getImageFilename(),
+            'id' => $enemy->getId(),
+            'healthPoints' => $enemy->getHealthPoints(),
+            'attackPower' => $enemy->getAttackPower(),
+            'defense' => $enemy->getDefense(),
+            'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+            'level' => $enemy->getLevel(),
+            'state' => $enemy->getState(),
+            'name' => $enemy->getName(),
+            'imageFilename' => $enemy->getImageFilename(),
             ];
         }
 
+        // Check if all enemies have state 0
+        $allEnemiesDefeated = true;
+        foreach ($enemies as $enemy) {
+            if ($enemy->getState() != 0) {
+            $allEnemiesDefeated = false;
+            break;
+            }
+        }
+
+        if ($allEnemiesDefeated) {
+            $stage->setState(0);
+            $stage->setStage($stage->getStage() + 1);
+
+            $entityManager->flush();
+        }
+
+        $saveSlotData = [
+            'id' => $saveSlot->getId(),
+            'creationDate' => $saveSlot->getCreationDate(),
+            'money' => $saveSlot->getMoney(),
+            'kills' => $saveSlot->getKills(),
+            'game' => $saveSlot->getGame()->getId(),
+            'stage' => array_map(function ($stage) {
+                return [
+                    'id' => $stage->getId(),
+                    'stage' => $stage->getStage(),
+                    'state' => $stage->getState(),
+                    'heroes' => array_map(function ($hero) {
+                        return [
+                            'id' => $hero->getId(),
+                            'healthPoints' => $hero->getHealthPoints(),
+                            'attackPower' => $hero->getAttackPower(),
+                            'criticalStrikeChance' => $hero->getCriticalStrikeChance(),
+                            'defense' => $hero->getDefense(),
+                            'experience' => $hero->getExperience(),
+                            'level' => $hero->getLevel(),
+                            'state' => $hero->getState(),
+                            'maxHealthPoints' => $hero->getMaxHealthPoints(),
+                            'imageFilename' => $hero->getImageFilename(),
+                            'name' => $hero->getName(),
+                            'abilities' => array_map(function ($ability) {
+                                return [
+                                    'id' => $ability->getId(),
+                                    'name' => $ability->getName(),
+                                    'description' => $ability->getDescription(),
+                                    'attack_damage' => $ability->getAttackDamage(),
+                                    'critical_strike_chance' => $ability->getCriticalStrikeChance(),
+                                    'defense' => $ability->getDefense(),
+                                    'health_points' => $ability->getHealthPoints(),
+                                    'type' => $ability->getType(),
+                                    'imageFilename' => $ability->getImageFilename(),
+                                ];
+                            }, $hero->getAbilities()->toArray()),
+                        ];
+                    }, $stage->getHeroes()->toArray()),
+                    'enemies' => array_map(function ($enemy) {
+                        return [
+                            'id' => $enemy->getId(),
+                            'healthPoints' => $enemy->getHealthPoints(),
+                            'attackPower' => $enemy->getAttackPower(),
+                            'defense' => $enemy->getDefense(),
+                            'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+                            'level' => $enemy->getLevel(),
+                            'state' => $enemy->getState(),
+                            'name' => $enemy->getName(),
+                            'imageFilename' => $enemy->getImageFilename(),
+                        ];
+                    }, $stage->getEnemies()->toArray())
+                ];
+            }, $saveSlot->getStage()->toArray()),
+        ];
+
         return new JsonResponse([
             'enemies' => $enemiesData,
+            'saveSlot' => $saveSlotData,
         ], Response::HTTP_OK);
 
     }
