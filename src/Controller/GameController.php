@@ -40,6 +40,7 @@ class GameController extends AbstractController
                             return [
                                 'id' => $stage->getId(),
                                 'stage' => $stage->getStage(),
+                                'state' => $stage->getState(),
                             ];
                         }, $saveSlot->getStage()->toArray()),
                     ];

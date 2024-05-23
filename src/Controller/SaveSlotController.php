@@ -135,6 +135,7 @@ class SaveSlotController extends AbstractController
         // Stage
         $stage = new Stage();
         $stage->setStage(1);
+        $stage->setState(1);
         $heroes = $heroeRepository->createHeroes();
         foreach ($heroes as $hero) {
             $stage->addHero($hero);
@@ -177,6 +178,7 @@ class SaveSlotController extends AbstractController
                 return [
                     'id' => $stage->getId(),
                     'stage' => $stage->getStage(),
+                    'state' => $stage->getState(),
                     'heroes' => array_map(function ($hero) {
                         return [
                             'id' => $hero->getId(),

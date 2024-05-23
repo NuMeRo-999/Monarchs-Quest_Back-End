@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\StageRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: StageRepository::class)]
@@ -33,6 +34,9 @@ class Stage
      */
     #[ORM\OneToMany(targetEntity: Enemy::class, mappedBy: 'stage' , cascade: ['remove'])]
     private Collection $enemies;
+
+    #[ORM\Column(type: Types::SMALLINT)]
+    private ?int $state = null;
 
     public function __construct()
     {
@@ -119,6 +123,18 @@ class Stage
                 $enemy->setStage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getState(): ?int
+    {
+        return $this->state;
+    }
+
+    public function setState(int $state): static
+    {
+        $this->state = $state;
 
         return $this;
     }
