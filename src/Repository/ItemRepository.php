@@ -60,6 +60,22 @@ class ItemRepository extends ServiceEntityRepository
         return $generatedItems;
     }
 
+    public function getItemsAtInventory(SaveSlot $saveSlot) {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        $qb->select('i')
+        ->from(Item::class, 'i')
+        ->join('i.saveSlots', 'ss')
+        ->where('ss.id = :id')
+        ->setParameter('id', $saveSlot->getId());
+
+        $query = $qb->getQuery();
+
+        $items = $query->getResult();
+
+        return $items;
+    }
+
     public function getWeaponsEquiped() {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
@@ -101,9 +117,9 @@ class ItemRepository extends ServiceEntityRepository
 
         $qb->select('i')
         ->from(Item::class, 'i')
-        ->join('i.heroes', 'h')
-        ->andWhere('i.state = :state')
-        ->setParameter('state', true);
+        ->join('i.heroes', 'h');
+        // ->andWhere('i.state = :state')
+        // ->setParameter('state', true);
 
         $query = $qb->getQuery();
 

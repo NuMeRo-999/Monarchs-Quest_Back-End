@@ -174,8 +174,8 @@ class HeroeController extends AbstractController
             $weaponCriticalStrikeChance += $w->getCriticalStrikeChance();
         }
 
-        $criticalStrikeChance = $heroe->getCriticalStrikeChance() + $weaponCriticalStrikeChance + $amulet[0]->getCriticalStrikeChance() + $skill->getCriticalStrikeChance();
-        $damage = $heroe->getAttackPower() + $weaponDamage + $amulet[0]->getAttackPower() + $skill->getAttackDamage();
+        $criticalStrikeChance = $heroe->getCriticalStrikeChance() + $weaponCriticalStrikeChance + ($amulet ? $amulet[0]->getCriticalStrikeChance() : 0) + $skill->getCriticalStrikeChance();
+        $damage = $heroe->getAttackPower() + $weaponDamage + ($amulet ? $amulet[0]->getAttackPower() : 0) + $skill->getAttackDamage();
 
         $randomNumber = mt_rand(1, 100);
 

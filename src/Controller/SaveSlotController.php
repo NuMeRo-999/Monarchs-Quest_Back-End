@@ -164,6 +164,78 @@ class SaveSlotController extends AbstractController
         return new JsonResponse($json, 201, [], true);
     }
 
+    #[Route('/add-items/{id}', name: 'app_save_slot_add_items', methods: ['GET'])]
+    public function addItems(SaveSlot $saveSlot, ItemRepository $itemRepository, EntityManagerInterface $entityManager): Response
+    {
+
+        $moneyToAdd = mt_rand(20, 50) * $saveSlot->getStage()[0]->getStage();
+        $saveSlot->setMoney($saveSlot->getMoney() + $moneyToAdd);
+        
+        $items = $itemRepository->getItemsAtInventory($saveSlot);
+        $maxItemsToAdd = 5;
+        $itemsAdded = 0;
+
+        $serializedItems = [];
+        foreach ($items as $item) {
+
+            $rarity = $item->getRarity();
+
+            $probability = 0;
+            if ($rarity === 'común') {
+                $probability = 0.5; // 50% probability for common items
+            } elseif ($rarity === 'raro') {
+                $probability = 0.3; // 30% probability for rare items
+            } elseif ($rarity === 'épico') {
+                $probability = 0.2; // 20% probability for epic items
+            }
+
+            if (mt_rand() / mt_getrandmax() < $probability) {
+                
+                $existingItem = null;
+                foreach ($itemRepository->getItemsAtInventory($saveSlot) as $existingItem) {
+                    if ($existingItem->getId() === $item->getId()) {
+                        // var_dump($existingItem->getId() === $item->getId());
+                        $existingItem = $item;
+                    }
+                }
+
+                // if ($existingItem) {
+                //     if($existingItem->getType() === 'consumible'){
+                //         $existingItem->setQuantity($existingItem->getQuantity() + 1);
+                //         $itemsAdded++;
+                //     }
+                // } else {
+                    $saveSlot->getStage()[0]->getHeroes()[0]->addWeapon1($item);
+                    $entityManager->persist($item);
+                    $itemsAdded++;
+
+                    $serializedItem = [
+                        'id' => $item->getId(),
+                        'name' => $item->getName(),
+                        'description' => $item->getDescription(),
+                        'type' => $item->getType(),
+                        'defense' => $item->getDefense(),
+                        'quantity' => $item->getQuantity(),
+                        'attackPower' => $item->getAttackPower(),
+                        'healthPoints' => $item->getHealthPoints(),
+                        'criticalStrikeChance' => $item->getCriticalStrikeChance(),
+                        'rarity' => $item->getRarity(),
+                        'imageFilename' => $item->getImageFilename(),
+                    ];
+                    $serializedItems[] = $serializedItem;
+                // }
+
+                if ($itemsAdded >= $maxItemsToAdd) {
+                    break;
+                }
+            }
+        }
+
+        $entityManager->flush();
+
+        return $this->json($serializedItems, 200);
+    }
+
     #[Route('/{id}', name: 'app_save_slot_show', methods: ['GET'])]
     public function show(SaveSlot $saveSlot): Response
     {
@@ -249,15 +321,12 @@ class SaveSlotController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_save_slot_delete', methods: ['DELETE'])]
-    public function delete(Request $request, SaveSlot $saveSlot, EntityManagerInterface $entityManager): Response
+    public function delete(SaveSlot $saveSlot, EntityManagerInterface $entityManager): Response
     {
         // Elimino todos los items y heroes relacionados
-
-
-        
         foreach ($saveSlot->getStage() as $stage) {
             foreach ($stage->getHeroes() as $hero) {
-            $entityManager->remove($hero);
+                $entityManager->remove($hero);
             }
             $entityManager->remove($stage);
         }
