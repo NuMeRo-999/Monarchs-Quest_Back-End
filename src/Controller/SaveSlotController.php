@@ -136,13 +136,14 @@ class SaveSlotController extends AbstractController
         $stage = new Stage();
         $stage->setStage(1);
         $stage->setState(1);
+        
         $heroes = $heroeRepository->createHeroes();
         foreach ($heroes as $hero) {
             $stage->addHero($hero);
             $entityManager->persist($hero);
         }
 
-        $enemies = $enemyRepository->createRandomEnemies(3);
+        $enemies = $enemyRepository->createRandomEnemies(3, $stage->getStage());
         foreach ($enemies as $enemy) {
             $stage->addEnemy($enemy);
             $entityManager->persist($enemy);
@@ -150,62 +151,78 @@ class SaveSlotController extends AbstractController
 
         $saveSlot->addStage($stage);
 
-        // Persistir los objetos y guardar en la base de datos
         $entityManager->persist($saveSlot);
         $entityManager->persist($stage);
         $entityManager->flush();
 
-        // Serializar el objeto SaveSlot con el grupo de serialización adecuado
         $json = $this->serializer->serialize($saveSlot, 'json', [
             'groups' => 'saveSlot_serialization',
         ]);
 
-        // Devolver una respuesta JSON con el objeto serializado y el código de estado 201
         return new JsonResponse($json, 201, [], true);
     }
 
     #[Route('/add-items/{id}', name: 'app_save_slot_add_items', methods: ['GET'])]
     public function addItems(SaveSlot $saveSlot, ItemRepository $itemRepository, EntityManagerInterface $entityManager): Response
     {
-
         $moneyToAdd = mt_rand(20, 50) * $saveSlot->getStage()[0]->getStage();
         $saveSlot->setMoney($saveSlot->getMoney() + $moneyToAdd);
-        
+
         $items = $itemRepository->getItemsAtInventory($saveSlot);
-        $maxItemsToAdd = 5;
+        $maxItemsToAdd = 3;
         $itemsAdded = 0;
 
         $serializedItems = [];
         foreach ($items as $item) {
-
             $rarity = $item->getRarity();
 
             $probability = 0;
             if ($rarity === 'común') {
-                $probability = 0.5; // 50% probability for common items
+                $probability = 0.5;
             } elseif ($rarity === 'raro') {
-                $probability = 0.3; // 30% probability for rare items
+                $probability = 0.3;
             } elseif ($rarity === 'épico') {
-                $probability = 0.2; // 20% probability for epic items
+                $probability = 0.2;
             }
 
             if (mt_rand() / mt_getrandmax() < $probability) {
-                
+                $hero = $saveSlot->getStage()[0]->getHeroes()[0];
                 $existingItem = null;
-                foreach ($itemRepository->getItemsAtInventory($saveSlot) as $existingItem) {
-                    if ($existingItem->getId() === $item->getId()) {
-                        // var_dump($existingItem->getId() === $item->getId());
-                        $existingItem = $item;
+
+                foreach ($hero->getWeapon1() as $inventoryItem) {
+                    if ($inventoryItem->getId() === $item->getId()) {
+                        $existingItem = $inventoryItem;
+                        break;
                     }
                 }
 
-                // if ($existingItem) {
-                //     if($existingItem->getType() === 'consumible'){
-                //         $existingItem->setQuantity($existingItem->getQuantity() + 1);
-                //         $itemsAdded++;
-                //     }
-                // } else {
-                    $saveSlot->getStage()[0]->getHeroes()[0]->addWeapon1($item);
+                if ($existingItem) {
+                    if ($item->getType() === 'consumible') {
+                        $existingItem->setQuantity($existingItem->getQuantity() + 1);
+                        $itemsAdded++;
+                        $serializedItem = [
+                            'id' => $item->getId(),
+                            'name' => $item->getName(),
+                            'description' => $item->getDescription(),
+                            'type' => $item->getType(),
+                            'defense' => $item->getDefense(),
+                            'quantity' => $item->getQuantity(),
+                            'attackPower' => $item->getAttackPower(),
+                            'healthPoints' => $item->getHealthPoints(),
+                            'criticalStrikeChance' => $item->getCriticalStrikeChance(),
+                            'rarity' => $item->getRarity(),
+                            'imageFilename' => $item->getImageFilename(),
+                        ];
+                        $serializedItems[] = $serializedItem;
+                    }
+                } else {
+                    if ($item->getType() === 'consumible') {
+                        $hero->addWeapon1($item);
+                        $itemsAdded++;
+                    } else {
+                        $hero->addWeapon1($item);
+                        $itemsAdded++;
+                    }
                     $entityManager->persist($item);
                     $itemsAdded++;
 
@@ -223,10 +240,10 @@ class SaveSlotController extends AbstractController
                         'imageFilename' => $item->getImageFilename(),
                     ];
                     $serializedItems[] = $serializedItem;
-                // }
 
-                if ($itemsAdded >= $maxItemsToAdd) {
-                    break;
+                    if ($itemsAdded >= $maxItemsToAdd) {
+                        break;
+                    }
                 }
             }
         }
@@ -234,6 +251,83 @@ class SaveSlotController extends AbstractController
         $entityManager->flush();
 
         return $this->json($serializedItems, 200);
+    }
+
+
+    #[Route('/next-stage/{id}', name: 'app_save_slot_next_stage', methods: ['GET'])]
+    public function nextStage(SaveSlot $saveSlot, EntityManagerInterface $entityManager, EnemyRepository $enemyRepository): Response
+    {
+        $stage = $saveSlot->getStage()[0];
+        $stage->setState(1);
+        $stage->setStage($stage->getStage() + 1);
+
+        $enemyRepository->deleteEnemiesByStage($stage->getId());
+
+        $enemies = $enemyRepository->createRandomEnemies(3, $stage->getId());
+        foreach ($enemies as $enemy) {
+            $stage->addEnemy($enemy);
+            $entityManager->persist($enemy);
+        }
+
+        $entityManager->flush();
+
+        $serializedSaveSlot = [
+            'id' => $saveSlot->getId(),
+            'creationDate' => $saveSlot->getCreationDate(),
+            'money' => $saveSlot->getMoney(),
+            'kills' => $saveSlot->getKills(),
+            'game' => $saveSlot->getGame()->getId(),
+            'stage' => array_map(function ($stage) {
+                return [
+                    'id' => $stage->getId(),
+                    'stage' => $stage->getStage(),
+                    'state' => $stage->getState(),
+                    'heroes' => array_map(function ($hero) {
+                        return [
+                            'id' => $hero->getId(),
+                            'healthPoints' => $hero->getHealthPoints(),
+                            'attackPower' => $hero->getAttackPower(),
+                            'criticalStrikeChance' => $hero->getCriticalStrikeChance(),
+                            'defense' => $hero->getDefense(),
+                            'experience' => $hero->getExperience(),
+                            'level' => $hero->getLevel(),
+                            'state' => $hero->getState(),
+                            'maxHealthPoints' => $hero->getMaxHealthPoints(),
+                            'imageFilename' => $hero->getImageFilename(),
+                            'name' => $hero->getName(),
+                            'abilities' => array_map(function ($ability) {
+                                return [
+                                    'id' => $ability->getId(),
+                                    'name' => $ability->getName(),
+                                    'description' => $ability->getDescription(),
+                                    'attack_damage' => $ability->getAttackDamage(),
+                                    'critical_strike_chance' => $ability->getCriticalStrikeChance(),
+                                    'defense' => $ability->getDefense(),
+                                    'health_points' => $ability->getHealthPoints(),
+                                    'type' => $ability->getType(),
+                                    'imageFilename' => $ability->getImageFilename(),
+                                ];
+                            }, $hero->getAbilities()->toArray()),
+                        ];
+                    }, $stage->getHeroes()->toArray()),
+                    'enemies' => array_map(function ($enemy) {
+                        return [
+                            'id' => $enemy->getId(),
+                            'healthPoints' => $enemy->getHealthPoints(),
+                            'attackPower' => $enemy->getAttackPower(),
+                            'defense' => $enemy->getDefense(),
+                            'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+                            'level' => $enemy->getLevel(),
+                            'state' => $enemy->getState(),
+                            'name' => $enemy->getName(),
+                            'imageFilename' => $enemy->getImageFilename(),
+                        ];
+                    }, $stage->getEnemies()->toArray())
+                ];
+            }, $saveSlot->getStage()->toArray()),
+        ];
+
+        return $this->json($serializedSaveSlot, 200);
     }
 
     #[Route('/{id}', name: 'app_save_slot_show', methods: ['GET'])]
