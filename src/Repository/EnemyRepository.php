@@ -63,6 +63,21 @@ class EnemyRepository extends ServiceEntityRepository
         return $generatedEnemies;
     }
 
+    /**
+     * Elimina todos los enemigos con estado 0 de una etapa específica.
+     *
+     * @param int $stageId El ID de la etapa.
+     */
+    public function deleteEnemiesByStage(int $stageId): void
+    {
+        $queryBuilder = $this->createQueryBuilder('e')
+            ->delete()
+            ->where('e.stage = :stageId')
+            ->andWhere('e.state = 0')
+            ->setParameter('stageId', $stageId);
+
+        $queryBuilder->getQuery()->execute();
+    }
 //    /**
 //     * @return Enemy[] Returns an array of Enemy objects
 //     */
