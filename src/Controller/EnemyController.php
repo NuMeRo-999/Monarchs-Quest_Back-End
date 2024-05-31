@@ -65,10 +65,16 @@ class EnemyController extends AbstractController
         ]);
     }
 
-    #[Route('/attack/{heroe}/{enemy}', name: 'app_enemy_attack', methods: ['GET'])]
-    public function enemyAttack(Heroe $heroe, Enemy $enemy, EntityManagerInterface $entityManager): Response
+    #[Route('/attack/{heroe}', name: 'app_enemy_attack', methods: ['GET'])]
+    public function enemyAttack(Heroe $heroe, EntityManagerInterface $entityManager): Response
     {
-        $damage = $enemy->getAttackPower() - $heroe->getDefense();
+        $enemies = $heroe->getStages()->toArray()[0]->getEnemies()->toArray();
+        $damage = 0;
+
+        foreach ($enemies as $enemy) {
+            $damage += $enemy->getAttackPower() - $heroe->getDefense();
+        }
+
         if ($damage < 0) {
             $damage = 0;
         }
