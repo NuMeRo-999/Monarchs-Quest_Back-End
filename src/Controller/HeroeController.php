@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Enemy;
 use App\Entity\Heroe;
+use App\Entity\Item;
 use App\Entity\Skill;
 use App\Form\Heroe1Type;
 use App\Repository\HeroeRepository;
@@ -37,23 +38,24 @@ class HeroeController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             $imgFile = $form->get('image')->getData();
-    
-                if ($imgFile) {
-                    $originalFilename = pathinfo($imgFile->getClientOriginalName(), PATHINFO_FILENAME);
-    
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename.'-'.uniqid().'.'.$imgFile->guessExtension();
-                }
-                try {
-                    $imgFile->move(
-                        $this->getParameter('image_directory'),
-                        $newFilename
-                    );
-                } catch (FileException $e) { }
-    
-                $heroe->setImageFilename($newFilename);
+
+            if ($imgFile) {
+                $originalFilename = pathinfo($imgFile->getClientOriginalName(), PATHINFO_FILENAME);
+
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imgFile->guessExtension();
+            }
+            try {
+                $imgFile->move(
+                    $this->getParameter('image_directory'),
+                    $newFilename
+                );
+            } catch (FileException $e) {
+            }
+
+            $heroe->setImageFilename($newFilename);
 
             $entityManager->persist($heroe);
             $entityManager->flush();
@@ -82,7 +84,7 @@ class HeroeController extends AbstractController
         $entityManager->flush();
 
         $saveSlot = $heroe->getStages()->toArray()[0]->getSaveSlot();
-        
+
 
         $saveSlotData = [
             'id' => $saveSlot->getId(),
@@ -188,7 +190,7 @@ class HeroeController extends AbstractController
         $stage = $heroe->getStages()->toArray()[0];
         $stage->setState(2);
 
-        if($enemy->getHealthPoints() <= 0) {
+        if ($enemy->getHealthPoints() <= 0) {
             $saveSlot->setKills($saveSlot->getKills() + 1);
             $heroe->setExperience($heroe->getExperience() + (20 * $enemy->getLevel()));
             $saveSlot->setMoney($saveSlot->getMoney() + (5 * $enemy->getLevel()));
@@ -203,15 +205,15 @@ class HeroeController extends AbstractController
         $enemiesData = [];
         foreach ($enemies as $enemy) {
             $enemiesData[] = [
-            'id' => $enemy->getId(),
-            'healthPoints' => $enemy->getHealthPoints(),
-            'attackPower' => $enemy->getAttackPower(),
-            'defense' => $enemy->getDefense(),
-            'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
-            'level' => $enemy->getLevel(),
-            'state' => $enemy->getState(),
-            'name' => $enemy->getName(),
-            'imageFilename' => $enemy->getImageFilename(),
+                'id' => $enemy->getId(),
+                'healthPoints' => $enemy->getHealthPoints(),
+                'attackPower' => $enemy->getAttackPower(),
+                'defense' => $enemy->getDefense(),
+                'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
+                'level' => $enemy->getLevel(),
+                'state' => $enemy->getState(),
+                'name' => $enemy->getName(),
+                'imageFilename' => $enemy->getImageFilename(),
             ];
         }
 
@@ -219,14 +221,14 @@ class HeroeController extends AbstractController
         $allEnemiesDefeated = true;
         foreach ($enemies as $enemy) {
             if ($enemy->getState() != 0) {
-            $allEnemiesDefeated = false;
-            break;
+                $allEnemiesDefeated = false;
+                break;
             }
         }
 
         if ($allEnemiesDefeated) {
             $stage->setState(0);
-            $stage->setStage($stage->getStage() + 1);
+
 
             $entityManager->flush();
         }
@@ -291,7 +293,53 @@ class HeroeController extends AbstractController
             'enemies' => $enemiesData,
             'saveSlot' => $saveSlotData,
         ], Response::HTTP_OK);
+    }
 
+    #[Route('/consume-item/{heroe}/{item}', name: 'app_heroe_consume_item', methods: ['POST'])]
+    public function consumeItem(Heroe $heroe, Item $item, EntityManagerInterface $entityManager): Response
+    {
+        $heroe->setHealthPoints($heroe->getHealthPoints() + $item->getHealthPoints());
+        $heroe->setMaxHealthPoints($heroe->getMaxHealthPoints() + $item->getMaxHealthPoints());
+        $heroe->setAttackPower($heroe->getAttackPower() + $item->getAttackPower());
+        $heroe->setDefense($heroe->getDefense() + $item->getDefense());
+        $heroe->setCriticalStrikeChance($heroe->getCriticalStrikeChance() + $item->getCriticalStrikeChance());
+
+        if ($item->getQuantity() > 1) {
+            $item->setQuantity($item->getQuantity() - 1);
+        } else {
+            $heroe->removeWeapon1($item);
+        }
+
+        $entityManager->flush();
+
+        return new JsonResponse([], Response::HTTP_OK);
+    }
+
+    #[Route('/equip-item/{item}', name: 'app_heroe_equip_weapon', methods: ['POST'])]
+    public function equipWeapon(Item $item, EntityManagerInterface $entityManager): Response
+    {
+        $item->setState(true);
+        $entityManager->flush();
+
+        return new JsonResponse([], Response::HTTP_OK);
+    }
+
+    #[Route('/unequip-item/{item}', name: 'app_heroe_unequip_item', methods: ['POST'])]
+    public function unequipItem(Item $item, EntityManagerInterface $entityManager): Response
+    {
+        $item->setState(false);
+        $entityManager->flush();
+
+        return new JsonResponse([], Response::HTTP_OK);
+    }
+
+    #[Route('/delete-item/{heroe}/{item}', name: 'app_heroe_delete_item', methods: ['POST'])]
+    public function deleteItem(Heroe $heroe, Item $item, EntityManagerInterface $entityManager): Response
+    {
+        $heroe->removeWeapon1($item);
+        $entityManager->flush();
+
+        return new JsonResponse([], Response::HTTP_OK);
     }
 
     #[Route('/{id}', name: 'app_heroe_show', methods: ['GET'])]
@@ -323,7 +371,7 @@ class HeroeController extends AbstractController
     #[Route('/{id}', name: 'app_heroe_delete', methods: ['POST'])]
     public function delete(Request $request, Heroe $heroe, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$heroe->getId(), $request->getPayload()->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $heroe->getId(), $request->getPayload()->get('_token'))) {
             $entityManager->remove($heroe);
             $entityManager->flush();
         }
