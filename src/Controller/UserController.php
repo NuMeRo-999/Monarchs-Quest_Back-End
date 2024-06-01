@@ -114,8 +114,8 @@ class UserController extends AbstractController
                         ];
                     }, $saveSlot->getStage()->toArray()),
                 ];
+                $serializedSaveSlots[] = $serializedSaveSlot;
             }
-            $serializedSaveSlots[] = $serializedSaveSlot;
         }
 
         $data = $this->serializer->serialize($serializedSaveSlots, 'json');

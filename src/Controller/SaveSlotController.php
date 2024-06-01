@@ -414,6 +414,15 @@ class SaveSlotController extends AbstractController
         return $this->json(['error' => 'Invalid data'], 400);
     }
 
+    #[Route('/end-state/{id}', name: 'app_save_slot_reset_state', methods: ['GET'])]
+    public function resetState(SaveSlot $saveSlot, EntityManagerInterface $entityManager): Response
+    {
+        $saveSlot->setState(1);
+        $entityManager->flush();
+
+        return $this->json([], 200);
+    }
+
     #[Route('/{id}', name: 'app_save_slot_delete', methods: ['DELETE'])]
     public function delete(SaveSlot $saveSlot, EntityManagerInterface $entityManager): Response
     {
