@@ -183,7 +183,6 @@ class HeroeController extends AbstractController
 
         if ($randomNumber <= $criticalStrikeChance) {
             $damage *= 2;
-            dd('Critical Strike! Damage: ' . $damage);
         }
 
         $enemy->setHealthPoints($enemy->getHealthPoints() - $damage);
@@ -298,8 +297,15 @@ class HeroeController extends AbstractController
     #[Route('/consume-item/{heroe}/{item}', name: 'app_heroe_consume_item', methods: ['POST'])]
     public function consumeItem(Heroe $heroe, Item $item, EntityManagerInterface $entityManager): Response
     {
-        $heroe->setHealthPoints($heroe->getHealthPoints() + $item->getHealthPoints());
-        $heroe->setMaxHealthPoints($heroe->getMaxHealthPoints() + $item->getMaxHealthPoints());
+        $newHealthPoints = $heroe->getHealthPoints() + $item->getHealthPoints();
+        $newMaxHealthPoints = $heroe->getMaxHealthPoints() + $item->getMaxHealthPoints();
+
+        if ($newHealthPoints > $newMaxHealthPoints) {
+            $newHealthPoints = $newMaxHealthPoints;
+        }
+
+        $heroe->setHealthPoints($newHealthPoints);
+        $heroe->setMaxHealthPoints($newMaxHealthPoints);
         $heroe->setAttackPower($heroe->getAttackPower() + $item->getAttackPower());
         $heroe->setDefense($heroe->getDefense() + $item->getDefense());
         $heroe->setCriticalStrikeChance($heroe->getCriticalStrikeChance() + $item->getCriticalStrikeChance());
