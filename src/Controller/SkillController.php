@@ -65,9 +65,19 @@ class SkillController extends AbstractController
     #[Route('/{id}', name: 'app_skill_show', methods: ['GET'])]
     public function show(Skill $skill): Response
     {
-        return $this->render('skill/show.html.twig', [
-            'skill' => $skill,
-        ]);
+        $data = [
+            'id' => $skill->getId(),
+            'name' => $skill->getName(),
+            'description' => $skill->getDescription(),
+            'damage' => $skill->getAttackDamage(),
+            'healthPoints' => $skill->getHealthPoints(),
+            'defense' => $skill->getDefense(),
+            'criticalStrikeChance' => $skill->getCriticalStrikeChance(),
+            'image' => $skill->getImageFilename(),
+            'type' => $skill->getType(),
+        ];
+
+        return $this->json($data);
     }
 
     #[Route('/{id}/edit', name: 'app_skill_edit', methods: ['GET', 'POST'])]
