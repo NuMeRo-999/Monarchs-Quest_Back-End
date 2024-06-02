@@ -282,7 +282,6 @@ class SaveSlotController extends AbstractController
         return $this->json($serializedItems, 200);
     }
 
-
     #[Route('/next-stage/{id}', name: 'app_save_slot_next_stage', methods: ['GET'])]
     public function nextStage(SaveSlot $saveSlot, EntityManagerInterface $entityManager, EnemyRepository $enemyRepository): Response
     {
@@ -292,7 +291,7 @@ class SaveSlotController extends AbstractController
 
         $enemyRepository->deleteEnemiesByStage($stage->getId());
 
-        $enemies = $enemyRepository->createRandomEnemies(3, $stage->getId());
+        $enemies = $enemyRepository->createRandomEnemies(3, $stage->getStage());
         foreach ($enemies as $enemy) {
             $stage->addEnemy($enemy);
             $entityManager->persist($enemy);
