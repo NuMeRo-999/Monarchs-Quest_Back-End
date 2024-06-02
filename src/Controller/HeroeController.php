@@ -216,7 +216,6 @@ class HeroeController extends AbstractController
             ];
         }
 
-        // Check if all enemies have state 0
         $allEnemiesDefeated = true;
         foreach ($enemies as $enemy) {
             if ($enemy->getState() != 0) {

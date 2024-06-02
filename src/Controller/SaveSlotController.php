@@ -128,9 +128,7 @@ class SaveSlotController extends AbstractController
             $saveSlot->addInventario($item);
             $entityManager->persist($item);
         }
-
         $saveSlot->setGame($game);
-
 
         // Stage
         $stage = new Stage();
@@ -252,7 +250,6 @@ class SaveSlotController extends AbstractController
 
         return $this->json($serializedItems, 200);
     }
-
 
     #[Route('/next-stage/{id}', name: 'app_save_slot_next_stage', methods: ['GET'])]
     public function nextStage(SaveSlot $saveSlot, EntityManagerInterface $entityManager, EnemyRepository $enemyRepository): Response
