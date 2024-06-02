@@ -73,6 +73,10 @@ class EnemyController extends AbstractController
 
         foreach ($enemies as $enemy) {
             $damage += $enemy->getAttackPower() - $heroe->getDefense();
+            $randomNumber = mt_rand(1, 100);
+            if ($randomNumber <= $enemy->getCriticalStrikeChance()) {
+                $damage *= 2;
+            }
         }
 
         if ($damage < 0) {
