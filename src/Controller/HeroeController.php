@@ -74,9 +74,22 @@ class HeroeController extends AbstractController
     {
         $heroe->setDefense($heroe->getDefense() + $skill->getDefense());
         $heroe->setHealthPoints($heroe->getHealthPoints() + $skill->getHealthPoints());
-        $heroe->setMaxHealthPoints($heroe->getMaxHealthPoints() + $skill->getHealthPoints());
+        // $heroe->setMaxHealthPoints($heroe->getMaxHealthPoints() + $skill->getHealthPoints());
         $heroe->setAttackPower($heroe->getAttackPower() + $skill->getAttackDamage());
         $heroe->setCriticalStrikeChance($heroe->getCriticalStrikeChance() + $skill->getCriticalStrikeChance());
+        
+        if ($heroe->getHealthPoints() > $heroe->getMaxHealthPoints()) {
+            $heroe->setHealthPoints($heroe->getMaxHealthPoints());
+        }
+
+        if ($skill->getName() === 'Ingresos pasivos') {
+            $saveSlot = $heroe->getStages()[0]->getSaveSlot();
+            $saveSlot->setMoney($saveSlot->getMoney() + 100);
+        }
+
+        if ($skill->getName() === 'Aumento de experiencia') {
+            $heroe->setExperience($heroe->getExperience() + 100);
+        }
 
         $stage = $heroe->getStages()->toArray()[0];
         $stage->setState(2);
