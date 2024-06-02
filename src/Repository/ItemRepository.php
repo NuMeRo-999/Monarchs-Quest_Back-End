@@ -76,7 +76,7 @@ class ItemRepository extends ServiceEntityRepository
         return $items;
     }
 
-    public function getWeaponsEquiped() {
+    public function getWeaponsEquiped(int $heroId) {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
         $qb->select('i')
@@ -85,7 +85,9 @@ class ItemRepository extends ServiceEntityRepository
         ->where('i.type = :type')
         ->setParameter('type', 'arma')
         ->andWhere('i.state = :state')
-        ->setParameter('state', true);
+        ->setParameter('state', true)
+        ->andWhere('h.id = :heroId')
+        ->setParameter('heroId', $heroId);
 
         $query = $qb->getQuery();
 
@@ -94,7 +96,7 @@ class ItemRepository extends ServiceEntityRepository
         return $items;
     }
 
-    public function getAmuletEquiped() {
+    public function getAmuletEquiped(int $heroId) {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
         $qb->select('i')
@@ -103,7 +105,9 @@ class ItemRepository extends ServiceEntityRepository
         ->where('i.type = :type')
         ->setParameter('type', 'amuleto')
         ->andWhere('i.state = :state')
-        ->setParameter('state', true);
+        ->setParameter('state', true)
+        ->andWhere('h.id = :heroId')
+        ->setParameter('heroId', $heroId);
 
         $query = $qb->getQuery();
 
@@ -112,14 +116,14 @@ class ItemRepository extends ServiceEntityRepository
         return $items;
     }
 
-    public function getItemAtInventory() {
+    public function getItemAtInventory(int $heroId) {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
         $qb->select('i')
         ->from(Item::class, 'i')
-        ->join('i.heroes', 'h');
-        // ->andWhere('i.state = :state')
-        // ->setParameter('state', true);
+        ->join('i.heroes', 'h')
+        ->andWhere('h.id = :heroId')
+        ->setParameter('heroId', $heroId);
 
         $query = $qb->getQuery();
 

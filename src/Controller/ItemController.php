@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Heroe;
 use App\Entity\Item;
+use App\Entity\SaveSlot;
 use App\Form\ItemType;
 use App\Repository\ItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,10 +74,11 @@ class ItemController extends AbstractController
         ]);
     }
 
-    #[Route('/equiped_weapons', name: 'app_weapon_item_equiped', methods: ['GET'])]
-    public function getEquippedWeapons(ItemRepository $itemRepository): Response
+    #[Route('/equiped_weapons/{save}', name: 'app_weapon_item_equiped', methods: ['GET'])]
+    public function getEquippedWeapons(SaveSlot $save, ItemRepository $itemRepository): Response
     {
-        $items = $itemRepository->getWeaponsEquiped();
+        $hero = $save->getStage()->toArray()[0]->getHeroes()->toArray()[0];
+        $items = $itemRepository->getWeaponsEquiped($hero->getId());
 
         $serializedItems = [];
 
@@ -100,10 +103,11 @@ class ItemController extends AbstractController
         ]);
     }
 
-    #[Route('/equiped_amulet', name: 'app_amulet_item_equiped', methods: ['GET'])]
-    public function getEquippedAmulet(ItemRepository $itemRepository): Response
+    #[Route('/equiped_amulet/{save}', name: 'app_amulet_item_equiped', methods: ['GET'])]
+    public function getEquippedAmulet(SaveSlot $save, ItemRepository $itemRepository): Response
     {
-        $items = $itemRepository->getAmuletEquiped();
+        $hero = $save->getStage()->toArray()[0]->getHeroes()->toArray()[0];
+        $items = $itemRepository->getAmuletEquiped($hero->getId());
 
         $serializedItems = [];
 
@@ -128,10 +132,11 @@ class ItemController extends AbstractController
         ]);
     }
 
-    #[Route('/equiped_items', name: 'app_item_equiped', methods: ['GET'])]
-    public function getEquippedItems(ItemRepository $itemRepository): Response
+    #[Route('/equiped_items/{save}', name: 'app_item_equiped', methods: ['GET'])]
+    public function getEquippedItems(SaveSlot $save, ItemRepository $itemRepository): Response
     {
-        $items = $itemRepository->getItemAtInventory();
+        $hero = $save->getStage()->toArray()[0]->getHeroes()->toArray()[0];
+        $items = $itemRepository->getItemAtInventory($hero->getId());
 
         $serializedItems = [];
 
