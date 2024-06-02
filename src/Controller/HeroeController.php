@@ -77,7 +77,7 @@ class HeroeController extends AbstractController
         // $heroe->setMaxHealthPoints($heroe->getMaxHealthPoints() + $skill->getHealthPoints());
         $heroe->setAttackPower($heroe->getAttackPower() + $skill->getAttackDamage());
         $heroe->setCriticalStrikeChance($heroe->getCriticalStrikeChance() + $skill->getCriticalStrikeChance());
-        
+
         if ($heroe->getHealthPoints() > $heroe->getMaxHealthPoints()) {
             $heroe->setHealthPoints($heroe->getMaxHealthPoints());
         }
@@ -88,7 +88,24 @@ class HeroeController extends AbstractController
         }
 
         if ($skill->getName() === 'Aumento de experiencia') {
+            $experienceNeeded = 100 * $heroe->getLevel();
             $heroe->setExperience($heroe->getExperience() + 100);
+
+            if ($heroe->getExperience() >= $experienceNeeded) {
+                $heroe->setLevel($heroe->getLevel() + 1);
+                $heroe->setExperience(0);
+
+                $healthIncrement = 10;
+                $attackIncrement = 5;
+                $defenseIncrement = 3;
+                $critIncrement = 0.5;
+
+                $heroe->setHealthPoints($heroe->getHealthPoints() + $healthIncrement * $heroe->getLevel());
+                $heroe->setMaxHealthPoints($heroe->getMaxHealthPoints() + $healthIncrement * $heroe->getLevel());
+                $heroe->setAttackPower($heroe->getAttackPower() + $attackIncrement * $heroe->getLevel());
+                $heroe->setDefense($heroe->getDefense() + $defenseIncrement * $heroe->getLevel());
+                $heroe->setCriticalStrikeChance($heroe->getCriticalStrikeChance() + $critIncrement * $heroe->getLevel());
+            }
         }
 
         $stage = $heroe->getStages()->toArray()[0];
@@ -205,6 +222,25 @@ class HeroeController extends AbstractController
         if ($enemy->getHealthPoints() <= 0) {
             $saveSlot->setKills($saveSlot->getKills() + 1);
             $heroe->setExperience($heroe->getExperience() + (20 * $enemy->getLevel()));
+
+            $experienceNeeded = 100 * $heroe->getLevel();
+
+            if ($heroe->getExperience() >= $experienceNeeded) {
+                $heroe->setLevel($heroe->getLevel() + 1);
+                $heroe->setExperience(0);
+
+                $healthIncrement = 10;
+                $attackIncrement = 5;
+                $defenseIncrement = 3;
+                $critIncrement = 0.5;
+
+                $heroe->setHealthPoints($heroe->getHealthPoints() + $healthIncrement * $heroe->getLevel());
+                $heroe->setMaxHealthPoints($heroe->getMaxHealthPoints() + $healthIncrement * $heroe->getLevel());
+                $heroe->setAttackPower($heroe->getAttackPower() + $attackIncrement * $heroe->getLevel());
+                $heroe->setDefense($heroe->getDefense() + $defenseIncrement * $heroe->getLevel());
+                $heroe->setCriticalStrikeChance($heroe->getCriticalStrikeChance() + $critIncrement * $heroe->getLevel());
+            }
+
             $saveSlot->setMoney($saveSlot->getMoney() + (5 * $enemy->getLevel()));
             $enemy->setState(false);
             $enemy->setHealthPoints(0);

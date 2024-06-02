@@ -21,38 +21,48 @@ class EnemyRepository extends ServiceEntityRepository
         parent::__construct($registry, Enemy::class);
     }
 
-     /**
+    /**
      * Crea un número especificado de enemigos aleatorios que no tienen un ID de etapa asignado.
      *
      * @param int $count La cantidad de enemigos a crear.
      * @return Enemy[] Un array de enemigos aleatorios.
      */
-    public function createRandomEnemies(int $count): array
+    public function createRandomEnemies(int $count, int $stage): array
     {
-        // Buscar enemigos que no tengan un ID de etapa asignado
         $queryBuilder = $this->createQueryBuilder('e')
             ->where('e.stage IS NULL');
 
         $enemies = $queryBuilder->getQuery()->getResult();
 
-        // Barajar aleatoriamente el array de enemigos
         shuffle($enemies);
 
-        // Seleccionar el número especificado de enemigos (si hay menos, se tomarán todos)
         $enemies = array_slice($enemies, 0, $count);
 
-        // Generar enemigos aleatorios basados en los tipos de enemigos disponibles
         $generatedEnemies = [];
         foreach ($enemies as $enemyType) {
-            
             $enemy = new Enemy();
             $enemy->setName($enemyType->getName());
-            $level = $enemyType->getLevel();
+            $level = $stage;
 
-            $enemy->setHealthPoints(random_int(50 * $level, 100 * $level));
-            $enemy->setAttackPower(random_int(10 * $level, 20 * $level));
-            $enemy->setDefense(random_int(5 * $level, 15 * $level));
-            $enemy->setCriticalStrikeChance(random_int(5 * $level, 15 * $level));
+            $baseHealth = 100;
+            $baseAttack = 20;
+            $baseDefense = 10;
+            $baseCrit = 5;
+
+            $healthScalingFactor = $level > 1 ? 1.2 : 1;
+            $attackScalingFactor = $level > 1 ? 1.1 : 1;
+            $defenseScalingFactor = $level > 1 ? 1.1 : 1;
+            $critScalingFactor = $level > 1 ? 1.05 : 1;
+
+            $healthPoints = $baseHealth * pow($healthScalingFactor, $level - 1);
+            $attackPower = $baseAttack * pow($attackScalingFactor, $level - 1);
+            $defense = $baseDefense * pow($defenseScalingFactor, $level - 1);
+            $criticalStrikeChance = $baseCrit * pow($critScalingFactor, $level - 1);
+
+            $enemy->setHealthPoints(random_int($healthPoints * 0.9, $healthPoints * 1.1));
+            $enemy->setAttackPower(random_int($attackPower * 0.9, $attackPower * 1.1));
+            $enemy->setDefense(random_int($defense * 0.9, $defense * 1.1));
+            $enemy->setCriticalStrikeChance(random_int($criticalStrikeChance * 0.9, $criticalStrikeChance * 1.1));
             $enemy->setLevel($level);
             $enemy->setState(1); // Vivo
             $enemy->setImageFilename($enemyType->getImageFilename());
@@ -62,6 +72,7 @@ class EnemyRepository extends ServiceEntityRepository
 
         return $generatedEnemies;
     }
+
 
     /**
      * Elimina todos los enemigos con estado 0 de una etapa específica.
@@ -78,28 +89,28 @@ class EnemyRepository extends ServiceEntityRepository
 
         $queryBuilder->getQuery()->execute();
     }
-//    /**
-//     * @return Enemy[] Returns an array of Enemy objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('e.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    //    /**
+    //     * @return Enemy[] Returns an array of Enemy objects
+    //     */
+    //    public function findByExampleField($value): array
+    //    {
+    //        return $this->createQueryBuilder('e')
+    //            ->andWhere('e.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->orderBy('e.id', 'ASC')
+    //            ->setMaxResults(10)
+    //            ->getQuery()
+    //            ->getResult()
+    //        ;
+    //    }
 
-//    public function findOneBySomeField($value): ?Enemy
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    //    public function findOneBySomeField($value): ?Enemy
+    //    {
+    //        return $this->createQueryBuilder('e')
+    //            ->andWhere('e.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->getQuery()
+    //            ->getOneOrNullResult()
+    //        ;
+    //    }
 }
