@@ -134,7 +134,7 @@ class SaveSlotController extends AbstractController
         $stage = new Stage();
         $stage->setStage(1);
         $stage->setState(1);
-        
+
         $heroes = $heroeRepository->createHeroes();
         foreach ($heroes as $hero) {
             $stage->addHero($hero);
@@ -222,7 +222,6 @@ class SaveSlotController extends AbstractController
                         $itemsAdded++;
                     }
                     $entityManager->persist($item);
-                    $itemsAdded++;
 
                     $serializedItem = [
                         'id' => $item->getId(),
@@ -246,10 +245,43 @@ class SaveSlotController extends AbstractController
             }
         }
 
+        // Si no se añadió ningún ítem, añadir uno al azar
+        if ($itemsAdded === 0 && count($items) > 0) {
+            $consumableItems = array_filter($items, function ($item) {
+                return $item->getType() === 'consumible';
+            });
+
+            if (count($consumableItems) > 0) {
+                $randomItem = $consumableItems[array_rand($consumableItems)];
+            } else {
+                $randomItem = $items[array_rand($items)];
+            }
+
+            $hero = $saveSlot->getStage()[0]->getHeroes()[0];
+            $hero->addWeapon1($randomItem);
+            $entityManager->persist($randomItem);
+
+            $serializedItem = [
+                'id' => $randomItem->getId(),
+                'name' => $randomItem->getName(),
+                'description' => $randomItem->getDescription(),
+                'type' => $randomItem->getType(),
+                'defense' => $randomItem->getDefense(),
+                'quantity' => $randomItem->getQuantity(),
+                'attackPower' => $randomItem->getAttackPower(),
+                'healthPoints' => $randomItem->getHealthPoints(),
+                'criticalStrikeChance' => $randomItem->getCriticalStrikeChance(),
+                'rarity' => $randomItem->getRarity(),
+                'imageFilename' => $randomItem->getImageFilename(),
+            ];
+            $serializedItems[] = $serializedItem;
+        }
+
         $entityManager->flush();
 
         return $this->json($serializedItems, 200);
     }
+
 
     #[Route('/next-stage/{id}', name: 'app_save_slot_next_stage', methods: ['GET'])]
     public function nextStage(SaveSlot $saveSlot, EntityManagerInterface $entityManager, EnemyRepository $enemyRepository): Response
