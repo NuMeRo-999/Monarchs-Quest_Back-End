@@ -60,6 +60,7 @@ class EnemyRepository extends ServiceEntityRepository
             $criticalStrikeChance = $baseCrit * pow($critScalingFactor, $level - 1);
 
             $enemy->setHealthPoints(random_int($healthPoints * 0.9, $healthPoints * 1.1));
+            $enemy->setMaxHealthPoints($enemy->getHealthPoints());
             $enemy->setAttackPower(random_int($attackPower * 0.9, $attackPower * 1.1));
             $enemy->setDefense(random_int($defense * 0.9, $defense * 1.1));
             $enemy->setCriticalStrikeChance(random_int($criticalStrikeChance * 0.9, $criticalStrikeChance * 1.1));

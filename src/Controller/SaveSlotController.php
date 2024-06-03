@@ -72,6 +72,7 @@ class SaveSlotController extends AbstractController
                             return [
                                 'id' => $enemy->getId(),
                                 'healthPoints' => $enemy->getHealthPoints(),
+                                'maxHealthPoints' => $enemy->getMaxHealthPoints(),
                                 'attackPower' => $enemy->getAttackPower(),
                                 'defense' => $enemy->getDefense(),
                                 'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
@@ -342,6 +343,7 @@ class SaveSlotController extends AbstractController
                         return [
                             'id' => $enemy->getId(),
                             'healthPoints' => $enemy->getHealthPoints(),
+                            'maxHealthPoints' => $enemy->getMaxHealthPoints(),
                             'attackPower' => $enemy->getAttackPower(),
                             'defense' => $enemy->getDefense(),
                             'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
@@ -405,6 +407,7 @@ class SaveSlotController extends AbstractController
                         return [
                             'id' => $enemy->getId(),
                             'healthPoints' => $enemy->getHealthPoints(),
+                            'maxHealthPoints' => $enemy->getMaxHealthPoints(),
                             'attackPower' => $enemy->getAttackPower(),
                             'defense' => $enemy->getDefense(),
                             'criticalStrikeChance' => $enemy->getCriticalStrikeChance(),
