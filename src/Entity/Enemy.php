@@ -41,6 +41,9 @@ class Enemy
     #[ORM\Column(type: 'string')]
     private string $imageFilename;
 
+    #[ORM\Column]
+    private ?int $maxHealthPoints = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -150,6 +153,18 @@ class Enemy
     public function setImageFilename(string $ImageFilename): self
     {
         $this->imageFilename = $ImageFilename;
+
+        return $this;
+    }
+
+    public function getMaxHealthPoints(): ?int
+    {
+        return $this->maxHealthPoints;
+    }
+
+    public function setMaxHealthPoints(int $maxHealthPoints): static
+    {
+        $this->maxHealthPoints = $maxHealthPoints;
 
         return $this;
     }
