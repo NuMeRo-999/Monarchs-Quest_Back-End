@@ -33,11 +33,11 @@ class UserController extends AbstractController
                 'id' => $user->getId(),
                 'username' => $user->getUsername(),
                 'roles' => $user->getRoles(),
-                'game' => $user->getGame(),
+                'game' => $user->getGame()->getId(),
             ];
             $serializedUsers[] = $serializedUser;
         }
-
+        
         $data = $serializer->serialize($serializedUsers, 'json');
 
         return new Response($data, Response::HTTP_OK, [
