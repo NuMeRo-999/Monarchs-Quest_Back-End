@@ -24,11 +24,12 @@ services:
     container_name: mysql_db
     environment:
       MYSQL_ROOT_PASSWORD: pass
-      MYSQL_DATABASE: database
+      MYSQL_DATABASE: monarchs_quest
     ports:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./monarchs_quest.sql:/docker-entrypoint-initdb.d/monarchs_quest.sql
     networks:
       - bbl_backend
 

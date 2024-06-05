@@ -12,7 +12,6 @@ use App\Repository\ItemRepository;
 use App\Repository\SaveSlotRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security as SecurityBundleSecurity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +24,7 @@ class SaveSlotController extends AbstractController
 
     private $serializer;
 
-    public function __construct(SerializerInterface $serializer, SecurityBundleSecurity $security)
+    public function __construct(SerializerInterface $serializer)
     {
         $this->serializer = $serializer;
     }

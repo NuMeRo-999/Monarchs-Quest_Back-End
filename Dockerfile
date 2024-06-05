@@ -29,8 +29,7 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
 # Ejecuta composer dump-autoload y una segunda instalación para asegurarse de que todas las dependencias estén presentes
-RUN git config --global --add safe.directory /var/www/html/vendor/theseer/tokenizer
-RUN composer dump-autoload --optimize \
+RUN rm -rf vendor && composer dump-autoload --optimize \
     && composer install --no-dev --optimize-autoloader --no-scripts
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
