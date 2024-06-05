@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php_symfony
+    volumes:
+      - .:/var/www/html:delegated
+    ports:
+      - "8080:8000"
+    environment:
+      APP_ENV: dev
+      APP_SECRET: secret
+      DATABASE_URL: mysql://root:root@db:3306/monarchs_quest
+    depends_on:
+      - mysql
+    networks:
+      - bbl_backend
+
+  mysql:
+    image: mysql:8.0.32
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: database
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - bbl_backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_bbl
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: passw
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - bbl_backend
+
+networks:
+  bbl_backend:
+    driver: bridge
+
+volumes:
+  mysql_data:
