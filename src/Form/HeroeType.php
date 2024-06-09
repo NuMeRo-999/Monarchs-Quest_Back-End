@@ -13,7 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
 
-class Heroe1Type extends AbstractType
+class HeroeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     curl \
     git \
+    netcat-openbsd \
     && apt-get clean
 
 # Instala Composer

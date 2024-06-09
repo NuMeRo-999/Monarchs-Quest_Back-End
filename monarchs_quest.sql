@@ -66,7 +66,7 @@ INSERT INTO `enemy` (`id`, `stage_id`, `health_points`, `attack_power`, `defense
 (6, NULL, 100, 10, 0, 0, 1, 1, 'Esqueleto', 'skeleton-Sheet-664037b54866d.png', 0),
 (7, NULL, 110, 15, 5, 0, 1, 1, 'Esqueleto Guerrero', 'Skeleton-Warrior-Sheet-6640389b3fa66.png', 0),
 (8, NULL, 80, 15, 0, 10, 1, 1, 'Esqueleto Pícaro', 'Skeleton-Rogue-Sheet-664037e727edb.png', 0),
-(9, NULL, 80, 20, 0, 10, 1, 1, 'Esqueleto Mago', 'Skeleton-Mage-Sheet-664038fe2fef4.png', 0),
+(9, NULL, 80, 20, 0, 10, 1, 1, 'Esqueleto Mago', 'Skeleton-Mage-Sheet-664038fe2fef4.png', 0);
 
 
 -- --------------------------------------------------------
@@ -107,7 +107,7 @@ CREATE TABLE `heroe` (
 INSERT INTO `heroe` (`id`, `health_points`, `attack_power`, `critical_strike_chance`, `defense`, `experience`, `level`, `state`, `max_health_points`, `image_filename`, `name`) VALUES
 (1, 100, 20, 0, 15, 0, 1, 1, 100, 'Knight-Sheet-66402d4b4e098.png', 'Knight'),
 (2, 100, 20, 10, 10, 0, 1, 1, 100, 'Rogue-Sheet-66402d78ed349.png', 'Rogue'),
-(3, 100, 25, 0, 10, 0, 1, 1, 100, 'Wizard-Sheet-66402d9d49e1c.png', 'Wizard'),
+(3, 100, 25, 0, 10, 0, 1, 1, 100, 'Wizard-Sheet-66402d9d49e1c.png', 'Wizard');
 
 
 -- --------------------------------------------------------
@@ -149,7 +149,7 @@ INSERT INTO `heroe_skill` (`heroe_id`, `skill_id`) VALUES
 (2, 1),
 (2, 2),
 (3, 1),
-(3, 2),
+(3, 2);
 
 -- --------------------------------------------------------
 
@@ -194,7 +194,7 @@ INSERT INTO `item` (`id`, `name`, `description`, `critical_strike_chance`, `atta
 (18, 'Escudo resistente de hueso', 'Escudo resistente hecho de hueso', 0, 0, 20, 1, 'raro', 'arma', 'bone-medium-shield-66402090d417c.png', 0, 0, 0),
 (19, 'Escudo de gran resistencia de hueso', 'Escudo robusto y muy resistente hecho con hueso', 0, 0, 30, 1, 'raro', 'arma', 'bone-good-shield-664020d017d1d.png', 0, 0, 0),
 (20, 'Colgante de vida', 'Te proporciona un pequeño aumento de vida máxima', 0, 0, 0, 1, 'común', 'amuleto', 'necklace-02b-664026db03b15.png', 0, 0, 10),
-(21, 'Anillo de poder', 'Anillo que te aumenta la fuerza de tus ataques', 10, 10, 0, 1, 'raro', 'amuleto', 'ring-01e-6640274ccf52d.png', 0, 0, 0),
+(21, 'Anillo de poder', 'Anillo que te aumenta la fuerza de tus ataques', 10, 10, 0, 1, 'raro', 'amuleto', 'ring-01e-6640274ccf52d.png', 0, 0, 0);
 
 -- --------------------------------------------------------
 

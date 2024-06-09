@@ -13,7 +13,7 @@ services:
     environment:
       APP_ENV: dev
       APP_SECRET: secret
-      DATABASE_URL: mysql://root:root@db:3306/monarchs_quest
+      DATABASE_URL: mysql://root:pass@3.234.169.215:3306/monarchs_quest
     depends_on:
       - mysql
     networks:
@@ -37,8 +37,8 @@ services:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin_bbl
     environment:
-      PMA_HOST: mysql
-      MYSQL_ROOT_PASSWORD: passw
+      PMA_HOST: mysql_db
+      MYSQL_ROOT_PASSWORD: pass
     ports:
       - "8081:80"
     depends_on:
