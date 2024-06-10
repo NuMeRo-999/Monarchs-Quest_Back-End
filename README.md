@@ -43,6 +43,8 @@ docker-compose up -d
   ```bash
   docker-compose down
   ```
+# Advertencia
+Para despliegues locales y en producción, asegúrate de configurar las variables de entorno adecuadamente en el archivo `docker-compose.yml`. Por ejemplo, puedes necesitar cambiar `DATABASE_URL` para apuntar a una base de datos diferente o ajustar `APP_ENV` para el entorno de producción.
 
 # Contribuciones
 Las contribuciones son bienvenidas. Si deseas contribuir, por favor, crea un fork del repositorio y envía un pull request.
