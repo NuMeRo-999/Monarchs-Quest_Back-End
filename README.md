@@ -18,15 +18,11 @@ cd Monarchs-Quest_Back-end
 ## Despliegue de contenedores
 Para construir la imagen y levantar los contenedores de Docker, sigue estos pasos:
 
-Construcción de la imagen
+Construcción de la imagen y ejecución
 ```bash
-docker build --pull --rm -f "Dockerfile" -t monarchs-quest_backend:latest .
+docker compose up --build
 ```
 
-Ejecución de los contenedores
-```bash
-docker-compose up -d
-```
  # Estructura del proyecto
   - Dockerfile: Configuración para construir la imagen de Docker.
   - docker-compose.yml: Configuración de Docker Compose para levantar los servicios necesarios.
